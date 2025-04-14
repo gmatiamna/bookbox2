@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
 
  // Match user entered password to hashed password in database
 userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.pw);
+  return await bcrypt.compare(enteredPassword, this.mot_de_passe);
 };
 
 // Encrypt password using bcrypt
