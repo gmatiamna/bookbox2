@@ -1,4 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const uniqueValidator = require("mongoose-unique-validator");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
   nom: { type: String, required: true },
@@ -8,22 +10,37 @@ const userSchema = new mongoose.Schema({
   genre_prefere: { type: String },
   role: {
     type: String,
-    enum: ['user', 'admin'],
-    default: 'user'
+    enum: ["user", "admin"],
+    default: "user",
   },
   date_inscription: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
-  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }]
+  // wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }]
 });
 
-// Virtual to exclude password from output
-userSchema.set('toJSON', {
-  transform: (doc, ret) => {
-    delete ret.mot_de_passe; // Don't return password
-    return ret;
+ // Match user entered password to hashed password in database
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.pw);
+};
+
+// Encrypt password using bcrypt
+userSchema.pre("save", async function (next) {
+  if (this.isModified("mot_de_passe")) {
+    const salt = await bcrypt.genSalt(10);
+    this.mot_de_passe = await bcrypt.hash(this.mot_de_passe, salt);
+    // Update the updatedAt field whenever the password is modified
+    this.updatedAt = Date.now(); // Set updatedAt to the current timestamp
   }
+  // Update the updatedAt field if username or email is modified
+  if (this.isModified("nom") || this.isModified("email")) {
+    this.updatedAt = Date.now(); // Set updatedAt to the current timestamp
+  }
+  next();
 });
 
-module.exports = mongoose.model('User', userSchema);
+// Apply the unique validator plugin to the schema
+userSchema.plugin(uniqueValidator);
+
+module.exports = mongoose.model("User", userSchema);

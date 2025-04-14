@@ -4,8 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const HttpError = require("../models/http-error");
 const { validationResult } = require("express-validator");
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
+const { generateToken } = require("../utils/generateToken");
 
 // @desc    Register a new user
 // @route   POST /api/users/signup
@@ -36,6 +35,9 @@ const registerUser = asyncHandler(async (req, res, next) => {
     genre_prefere,
   });
 
+  // Generate token 
+  generateToken(res, newUser._id);
+
   // Send success response
   res.status(201).json({
     message: "User signed up successfully",
@@ -61,20 +63,6 @@ const loginUser = asyncHandler(async (req, res, next) => {
   if (!user || !(await bcrypt.compare(mot_de_passe, user.mot_de_passe))) {
     return next(new HttpError("Invalid credentials", 401));
   }
-
-  // Generate JWT token
-  const token = jwt.sign(
-    { userId: user._id, role: user.role },
-    JWT_SECRET,
-    { expiresIn: '7d' }
-  );
-  
-  // Set JWT as an HTTP-only cookie
-  res.cookie('jwt', token, {
-    httpOnly: true, // Prevents client-side access to the cookie
-    secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-    maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expires in 7 days
-  });
 
   // Send success response with user data
   res.status(200).json({

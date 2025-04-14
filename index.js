@@ -25,9 +25,9 @@ app.use((err, req, res, next) => {
   });
 });
 // Use routes for user operations
-app.use('/api/users', userRoutes); 
+app.use('/api/user', userRoutes); 
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
