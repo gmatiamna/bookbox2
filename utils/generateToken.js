@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || "abc123"; // Fallback to default for local development
-const NODE_ENV = process.env.NODE_ENV || "development"; // Default to "development" if NODE_ENV is not set
+const JWT_SECRET = "abc123"; // Fallback to default for local development
+const NODE_ENV = "development"; // Default to "development" if NODE_ENV is not set
 
 exports.generateToken = (res, userId) => {
   // Create the JWT token with the userId payload
