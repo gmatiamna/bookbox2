@@ -6,6 +6,7 @@ const HttpError = require("../models/http-error");
 const { validationResult } = require("express-validator");
 const { generateToken } = require("../utils/generateToken");
 
+
 // @desc    Register a new user
 // @route   POST /api/users/signup
 // @access  Public

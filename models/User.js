@@ -17,7 +17,13 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  // wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }]
+  panier: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: "Book", // Assuming 'book' is the name of the related model for items in the shopping cart
+    },
+  ],
+   wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }]
 });
 
  // Match user entered password to hashed password in database
