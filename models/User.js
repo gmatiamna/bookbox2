@@ -1,13 +1,22 @@
 const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
 const bcrypt = require("bcryptjs");
-
+const genre = require('../utils/genre');
 const userSchema = new mongoose.Schema({
   nom: { type: String, required: true },
   email: { type: String, required: true, unique: true, lowercase: true },
   d_ness: { type: Date, required: true },
   mot_de_passe: { type: String, required: true },
-  genre_prefere: { type: String },
+  genre_prefere: {
+    type: [String],
+    enum: genre,
+    validate: {
+      validator: function (val) {
+        return val.length <= 3;
+      },
+      message: 'You can select up to 3 preferred genres only.',
+    },
+  },
   role: {
     type: String,
     enum: ["user", "admin"],
@@ -22,8 +31,7 @@ const userSchema = new mongoose.Schema({
       type: mongoose.Types.ObjectId,
       ref: "Book", // Assuming 'book' is the name of the related model for items in the shopping cart
     },
-  ],
-   wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }]
+  ]
 });
 
  // Match user entered password to hashed password in database

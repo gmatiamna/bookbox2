@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const HttpError = require("../models/http-error");
 const { validationResult } = require("express-validator");
 const { generateToken } = require("../utils/generateToken");
+const genre = require('../utils/genre');
 
 
 // @desc    Register a new user
@@ -24,8 +25,16 @@ const registerUser = asyncHandler(async (req, res, next) => {
   if (existingUser) {
     return next(new HttpError("User already exists", 400));
   }
+// Validate genre_prefere
+if (!Array.isArray(genre_prefere) || genre_prefere.length === 0 || genre_prefere.length > 3) {
+  return next(new HttpError("You must select 1 to 3 preferred genres.", 400));
+}
 
-
+// Check if all selected genres are valid
+const invalidGenres = genre_prefere.filter(g => !genre.includes(g));  // Ensure the genre is NOT in the list
+if (invalidGenres.length > 0) {
+  return next(new HttpError(`Invalid genre(s): ${invalidGenres.join(', ')}`, 400));
+}
 
   // Create the new user
   const newUser = await User.create({

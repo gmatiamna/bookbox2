@@ -1,12 +1,15 @@
 const Book = require('../models/Book');
 const mongoose = require('mongoose');
+const allowedGenres = require('../utils/genre');
 
 // @desc Create a new book
 // @route POST /api/books
 // @access Private (Admin only)
 const createBook = async (req, res) => {
   const { titre, auteur, description, prix, categorie, fichierPDF, estALouer } = req.body;
-
+  if (!allowedGenres.includes(categorie)) {
+    return res.status(400).json({ message: `Invalid category. Must be one of: ${allowedGenres.join(', ')}` });
+  }
   try {
     const newBook = new Book({
       titre,
@@ -71,7 +74,9 @@ const getBookById = async (req, res) => {
 const updateBook = async (req, res) => {
   const { id } = req.params;
   const { titre, auteur, description, prix, categorie, fichierPDF, estALouer } = req.body;
-
+  if (categorie && !allowedGenres.includes(categorie)) {
+    return res.status(400).json({ message: `Invalid category. Must be one of: ${allowedGenres.join(', ')}` });
+  }
   try {
     const updatedBook = await Book.findByIdAndUpdate(id, {
       titre,

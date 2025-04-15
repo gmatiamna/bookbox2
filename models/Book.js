@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const genre = require('../utils/genre');
 const bookSchema = new mongoose.Schema({
   titre: {
     type: String,
@@ -22,10 +22,11 @@ const bookSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  categorie: {
+  categorie: [{
     type: String,
+    enum: genre,
     required: true
-  },
+  }],
   fichierPDF: {
     type: String, // Store file path or URL
     required: true

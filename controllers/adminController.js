@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
 const HttpError = require('../models/http-error');
 const User = require('../models/User');  // Assuming User is your model for user schema
+const { generateToken } = require('../utils/generateToken');
 
 exports.signupAdmin = async (req, res, next) => {
   const errors = validationResult(req);
@@ -34,7 +35,7 @@ exports.signupAdmin = async (req, res, next) => {
     console.error('Error saving admin:', e);  // Log the error for debugging
     return next(new HttpError('Creating Admin failed!', 500));
   }
-
+  generateToken(res, createdAdmin._id);
   res.status(201).json({
     msg: "Admin has been added successfully!",
     admin: createdAdmin.toObject({ getters: true }),  // Return the created admin object, excluding sensitive fields like password
