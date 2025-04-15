@@ -5,6 +5,8 @@ const userRouters = require('./routes/userRoutes');
 const bookRouters = require('./routes/bookRouters'); 
 const adminRouters = require('./routes/adminRouters'); 
 const cookieParser = require('cookie-parser');
+const wishlistRoutes = require('./routes/wishlistRoutes');
+
 require('dotenv').config();
 const app = express();
 
@@ -22,7 +24,7 @@ mongoose.connect(process.env.MONGO_URI)
   app.use('/api/admin', adminRouters);
 app.use('/api/books', bookRouters);
 app.use('/api/user', userRouters); 
-
+app.use('/api/wishlist', wishlistRoutes);
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({
