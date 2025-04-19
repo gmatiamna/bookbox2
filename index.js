@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const userRouters = require('./routes/userRoutes'); 
@@ -6,16 +7,19 @@ const bookRouters = require('./routes/bookRouters');
 const adminRouters = require('./routes/adminRouters'); 
 const cookieParser = require('cookie-parser');
 const wishlistRoutes = require('./routes/wishlistRoutes');
+const offerRoutes = require('./routes/offerRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+
+
 
 require('dotenv').config();
 const app = express();
-
+app.use(cors());
 app.use(express.json());
 
 app.use(cookieParser());
 
 // MongoDB connection
-
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ Connected to MongoDB'))
@@ -25,6 +29,8 @@ mongoose.connect(process.env.MONGO_URI)
 app.use('/api/books', bookRouters);
 app.use('/api/user', userRouters); 
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/offers', offerRoutes);
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({

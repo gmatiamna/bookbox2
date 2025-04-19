@@ -14,10 +14,14 @@ const bookSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  prix: {
+  prix_achat: {
     type: Number,
     required: true
   },
+  prix_location: {
+    type: Number,
+    required: true
+  },  
   estDisponible: {
     type: Boolean,
     default: true

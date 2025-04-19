@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  photo_profil: {
+    type: String,
+    default: 'default-avatar.png',
+  },
   panier: [
     {
       type: mongoose.Types.ObjectId,
