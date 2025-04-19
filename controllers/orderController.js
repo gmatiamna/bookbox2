@@ -1,45 +1,64 @@
 const Order = require('../models/Order');
-const Book = require('../models/Book');
+const Offer = require('../models/Offer');
+const User = require('../models/User');
+const { createNotification } = require('../controllers/orderNotificationController');
 
 const createOrder = async (req, res) => {
-    try {
-      const { bookId, type, prix, location_debut, location_fin } = req.body;
-  
-      // Ensure required fields are provided
-      if (!bookId || !type || !prix) {
-        return res.status(400).json({ message: "Book, type, and price are required" });
-      }
-  
-      // Handle rental orders with start and end dates for location
-      if (type === 'location' && (!location_debut || !location_fin)) {
-        return res.status(400).json({ message: "Location dates are required for renting" });
-      }
-  
-      // Create a new order
-      const order = new Order({
-        user: req.user._id, // Assuming `req.user` has been populated with the authenticated user's details via middleware
-        book: bookId,
-        type,
-        prix,
-        location_debut: type === 'location' ? location_debut : undefined,
-        location_fin: type === 'location' ? location_fin : undefined,
-      });
-  
-      // Save the order to the database
-      await order.save();
-  
-      res.status(201).json({
-        message: "Order created successfully",
-        order,
-      });
-    } catch (error) {
-      console.error("❌ Error in createOrder:", error);
-      res.status(500).json({
-        message: "Server error",
-        error: error.message || error,
-      });
+  try {
+    const { bookId, type, prix, location_debut, location_fin } = req.body;
+
+    if (!bookId || !type || !prix) {
+      return res.status(400).json({ message: "Book, type, and price are required" });
     }
-  };
+
+    if (type === 'location' && (!location_debut || !location_fin)) {
+      return res.status(400).json({ message: "Location dates are required for renting" });
+    }
+
+    // 🔎 Check if user has claimed an offer
+    const user = await User.findById(req.user._id).populate('claimedOffer');
+    let finalPrice = prix;
+
+    if (user.claimedOffer) {
+      const offer = user.claimedOffer;
+      finalPrice = prix - (prix * (offer.discountPercentage / 100));
+      finalPrice = Math.max(finalPrice, 0); // avoid negative price
+    }
+
+    // 🧾 Create the order with final (discounted or normal) price
+    const order = new Order({
+      user: req.user._id,
+      book: bookId,
+      type,
+      prix: finalPrice,
+      location_debut: type === 'location' ? location_debut : undefined,
+      location_fin: type === 'location' ? location_fin : undefined,
+    });
+
+    // Save the order
+    await order.save();
+
+    // Create the order notification
+    await createNotification(order, req.user._id);
+
+    // Respond with order details and the discount message if applicable
+    res.status(201).json({
+      message: user.claimedOffer
+        ? `Order created with ${user.claimedOffer.discountPercentage}% discount`
+        : "Order created successfully",
+      order,
+      notification: "You have a new order notification!", // Custom notification message (or adjust as needed)
+    });
+
+  } catch (error) {
+    console.error("❌ Error in createOrder:", error);
+    res.status(500).json({
+      message: "Server error",
+      error: error.message || error,
+    });
+  }
+};
+
   const getBookAccess = async (req, res) => {
     try {
       const userId = req.user._id;

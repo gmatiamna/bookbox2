@@ -9,8 +9,8 @@ const cookieParser = require('cookie-parser');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 const offerRoutes = require('./routes/offerRoutes');
 const orderRoutes = require('./routes/orderRoutes');
-
-
+const cartRoutes = require('./routes/cartRoutes');
+const orderNotificationRoutes = require('./routes/orderNotificationRoutes');  
 
 require('dotenv').config();
 const app = express();
@@ -31,6 +31,8 @@ app.use('/api/user', userRouters);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/offers', offerRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/notifications', orderNotificationRoutes);
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({

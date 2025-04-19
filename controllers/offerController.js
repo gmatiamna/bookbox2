@@ -46,5 +46,23 @@ const createOffer = async (req, res) => {
       });
     }
   };
+// User claims an offer
+const claimOffer = async (req, res) => {
+  try {
+    const offerId = req.params.id;
 
-module.exports = { getAllOffers, createOffer };
+    const offer = await Offer.findById(offerId);
+    if (!offer) {
+      return res.status(404).json({ message: 'Offer not found' });
+    }
+
+    const user = await User.findById(req.user._id);
+    user.claimedOffer = offerId;
+    await user.save();
+
+    res.status(200).json({ message: 'Offer claimed successfully', offer });
+  } catch (error) {
+    console.error('Error claiming offer:', error);
+    res.status(500).json({ message: 'Server error' });
+  }};
+module.exports = { getAllOffers, createOffer,claimOffer };

@@ -30,6 +30,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'default-avatar.png',
   },
+  claimedOffer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Offer',
+    default: null,
+  },
+
   panier: [
     {
       type: mongoose.Types.ObjectId,
