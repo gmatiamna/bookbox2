@@ -6,19 +6,27 @@ const allowedGenres = require('../utils/genre');
 // @route POST /api/books
 // @access Private (Admin only)
 const createBook = async (req, res) => {
-  const { titre, auteur, description, prix, categorie, fichierPDF, estALouer } = req.body;
-  if (!allowedGenres.includes(categorie)) {
+  const {
+    titre, auteur, description,
+    prix_achat, prix_location,
+    categorie, fichierPDF, imageCouverture, estALouer
+  } = req.body;
+
+  if (!Array.isArray(categorie) || categorie.some(cat => !allowedGenres.includes(cat))) {
     return res.status(400).json({ message: `Invalid category. Must be one of: ${allowedGenres.join(', ')}` });
   }
+
   try {
     const newBook = new Book({
       titre,
       auteur,
       description,
-      prix,
+      prix_achat,
+      prix_location,
       categorie,
-      fichierPDF,
-      estALouer,
+      fichierPDF,         // already a Cloudinary URL
+      imageCouverture,    // also a Cloudinary URL
+      estALouer
     });
 
     const book = await newBook.save();
@@ -27,7 +35,6 @@ const createBook = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
-
 // @desc Get all books
 // @route GET /api/books
 // @access Public

@@ -7,8 +7,8 @@ const HttpError = require("../models/http-error");
 const { validationResult } = require("express-validator");
 const { generateToken } = require("../utils/generateToken");
 const genre = require('../utils/genre');
-
-
+const cloudinary = require("../cloudanary/cloudinary");
+const allowedFormats = ["image/png", "image/jpg", "image/jpeg", "image/svg+xml", "image/x-icon", "image/gif", "image/webp"];
 // @desc    Register a new user
 // @route   POST /api/users/signup
 // @access  Public
@@ -61,6 +61,35 @@ if (invalidGenres.length > 0) {
     }
   });
 });
+
+// @desc    user updateimage
+// @route   POST /api/users/profilephoto
+// @access  Public
+const uploadProfilePhoto = async (req, res) => {
+  try {
+    const { image, fileType } = req.body;
+
+    // Check if format is allowed
+    if (!allowedFormats.includes(fileType)) {
+      return res.status(400).json({ error: "Unsupported file format." });
+    }
+
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(image, {
+      folder: "avatars",
+      public_id: `avatar_${Date.now()}`,
+    });
+
+    res.status(200).json({
+      message: "Image uploaded successfully",
+      url: result.secure_url,
+    });
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({ error: "Failed to upload image" });
+  }
+};
+
 
 // @desc    Authenticate user and get token
 // @route   POST /api/users/login
@@ -194,5 +223,6 @@ module.exports = {
   registerUser,
   loginUser,
   getUserProfile,
-  logoutUser
+  logoutUser,uploadProfilePhoto
+  
 };

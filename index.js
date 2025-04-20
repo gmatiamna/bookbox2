@@ -11,7 +11,7 @@ const offerRoutes = require('./routes/offerRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderNotificationRoutes = require('./routes/orderNotificationRoutes');  
-
+const cloudinary =require('./cloudanary/cloudinary')
 require('dotenv').config();
 const app = express();
 app.use(cors());

@@ -35,6 +35,10 @@ const bookSchema = new mongoose.Schema({
     type: String, // Store file path or URL
     required: true
   },
+  imageCouverture: {
+    type: String, // Cloudinary image URL
+    required: true,
+  },
   estALouer: {
     type: Boolean,
     default: false
