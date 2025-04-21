@@ -36,12 +36,11 @@ const userSchema = new mongoose.Schema({
     default: null,
   },
 
-  panier: [
-    {
-      type: mongoose.Types.ObjectId,
-      ref: "Book", // Assuming 'book' is the name of the related model for items in the shopping cart
-    },
-  ]
+  points: [{
+    amount: Number,
+    earnedAt: { type: Date, default: Date.now }
+  }],
+  lastPurchaseDate: Date,
 });
 
  // Match user entered password to hashed password in database

@@ -193,5 +193,13 @@ const addComment = async (req, res) => {
   }
 };
 
+const getBooksSortedByRating = async (req, res) => {
+  try {
+    const books = await Book.find().sort({ averageRating: -1 }); // Sort books by averageRating in descending order
+    res.json({ books });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to load books', error: err });
+  }
+};
 
-module.exports = { updateBook, createBook, getAllBooks, getBookById, deleteBook, rateBook ,addComment};
+module.exports = { updateBook, createBook, getAllBooks, getBookById, deleteBook, rateBook ,addComment,getBooksSortedByRating};

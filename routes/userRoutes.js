@@ -7,7 +7,7 @@ const {
   logoutUser,
   updateUserProfile,
   getUserProfile,
-  uploadProfilePhoto
+  uploadProfilePhoto,getUserPoints ,updatePreferredGenres
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -20,5 +20,7 @@ router.post('/logout', logoutUser);
 router.get('/profile', protect, getUserProfile);
 router.post('/login', loginUser);
 router.put('/update-profile-photo', protect, uploadProfilePhoto);
+router.get('/points', protect, getUserPoints);
+router.put('/user/genres', protect, updatePreferredGenres); 
 
 module.exports = router;

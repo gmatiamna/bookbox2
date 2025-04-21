@@ -7,7 +7,7 @@ const HttpError = require("../models/http-error");
 const { validationResult } = require("express-validator");
 const { generateToken } = require("../utils/generateToken");
 const genre = require('../utils/genre');
-const cloudinary = require("../cloudanary/cloudinary");
+const cloudinary = require("../cloudinary/cloudinary");
 const allowedFormats = ["image/png", "image/jpg", "image/jpeg", "image/svg+xml", "image/x-icon", "image/gif", "image/webp"];
 // @desc    Register a new user
 // @route   POST /api/users/signup
@@ -18,37 +18,23 @@ const registerUser = asyncHandler(async (req, res, next) => {
     return next(new HttpError("Invalid Inputs, check your data", 422));
   }
 
-  const { nom, email, d_ness, mot_de_passe, genre_prefere } = req.body;
+  const { nom, email, d_ness, mot_de_passe } = req.body;
 
-  // Check if the user already exists
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     return next(new HttpError("User already exists", 400));
   }
-// Validate genre_prefere
-if (!Array.isArray(genre_prefere) || genre_prefere.length === 0 || genre_prefere.length > 3) {
-  return next(new HttpError("You must select 1 to 3 preferred genres.", 400));
-}
 
-// Check if all selected genres are valid
-const invalidGenres = genre_prefere.filter(g => !genre.includes(g));  // Ensure the genre is NOT in the list
-if (invalidGenres.length > 0) {
-  return next(new HttpError(`Invalid genre(s): ${invalidGenres.join(', ')}`, 400));
-}
-
-  // Create the new user
   const newUser = await User.create({
     nom,
     email,
     d_ness,
     mot_de_passe,
-    genre_prefere,
+    genre_prefere: [], // Initially empty
   });
 
-  // Generate token 
   generateToken(res, newUser._id);
 
-  // Send success response
   res.status(201).json({
     message: "User signed up successfully",
     user: {
@@ -57,8 +43,32 @@ if (invalidGenres.length > 0) {
       email: newUser.email,
       d_ness: newUser.d_ness,
       genre_prefere: newUser.genre_prefere,
-      role: newUser.role
-    }
+      role: newUser.role,
+    },
+  });
+});
+const updatePreferredGenres = asyncHandler(async (req, res, next) => {
+  const { genre_prefere } = req.body;
+  const userId = req.user._id; // You get this from token middleware
+
+  if (!Array.isArray(genre_prefere) || genre_prefere.length === 0 || genre_prefere.length > 3) {
+    return next(new HttpError("You must select 1 to 3 preferred genres.", 400));
+  }
+
+  const invalidGenres = genre_prefere.filter(g => !genre.includes(g));
+  if (invalidGenres.length > 0) {
+    return next(new HttpError(`Invalid genre(s): ${invalidGenres.join(', ')}`, 400));
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { genre_prefere },
+    { new: true }
+  );
+
+  res.status(200).json({
+    message: "Preferred genres updated successfully",
+    genre_prefere: updatedUser.genre_prefere,
   });
 });
 
@@ -217,12 +227,25 @@ const updateUserProfile = asyncHandler(async (req, res, next) => {
     return next(new HttpError("User not found", 404));
   }
 });
+const getUserPoints = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    const totalPoints = user.points.reduce((sum, p) => sum + p.amount, 0);
+
+    res.status(200).json({ totalPoints, history: user.points });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to get points", error });
+  }
+};
+module.exports = { getUserPoints };
+
 
 module.exports = {
   updateUserProfile,
   registerUser,
   loginUser,
   getUserProfile,
-  logoutUser,uploadProfilePhoto
+  logoutUser,uploadProfilePhoto,getUserPoints,updatePreferredGenres
   
 };

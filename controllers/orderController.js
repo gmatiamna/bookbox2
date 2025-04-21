@@ -1,7 +1,9 @@
 const Order = require('../models/Order');
 const Offer = require('../models/Offer');
 const User = require('../models/User');
+const Book = require('../models/Book');
 const { createNotification } = require('../controllers/orderNotificationController');
+const { updateUserLibrary } = require('./userlibraryController'); 
 
 const createOrder = async (req, res) => {
   try {
@@ -11,21 +13,61 @@ const createOrder = async (req, res) => {
       return res.status(400).json({ message: "Book, type, and price are required" });
     }
 
+    // Fetch the book to get its pricing
+    const book = await Book.findById(bookId); // Ensure Book is correctly fetched
+    if (!book) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
+
+    let price = type === 'achat' ? book.prix_achat : book.prix_location;
+
+    // Check if user wants to redeem points
+    let isUsingPoints = req.body.usePoints || false;
+    const user = await User.findById(req.user._id); // Fetch user
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (isUsingPoints) {
+      const totalPoints = user.points.reduce((sum, p) => sum + p.amount, 0);
+      if (totalPoints >= 100 && price <= 50) {
+        // User qualifies for free book
+        price = 0;
+
+        // Deduct used points from history
+        let toDeduct = 100;
+        user.points = user.points.reduce((acc, p) => {
+          if (toDeduct > 0) {
+            if (p.amount <= toDeduct) {
+              toDeduct -= p.amount;
+              return acc;
+            } else {
+              p.amount -= toDeduct;
+              toDeduct = 0;
+            }
+          }
+          acc.push(p);
+          return acc;
+        }, []);
+        console.log("🎉 Book redeemed using points!");
+      }
+    }
+
+    // Ensure valid rental dates for 'location' type
     if (type === 'location' && (!location_debut || !location_fin)) {
       return res.status(400).json({ message: "Location dates are required for renting" });
     }
 
-    // 🔎 Check if user has claimed an offer
-    const user = await User.findById(req.user._id).populate('claimedOffer');
     let finalPrice = prix;
 
+    // Apply any user-specific offers/discounts
     if (user.claimedOffer) {
       const offer = user.claimedOffer;
       finalPrice = prix - (prix * (offer.discountPercentage / 100));
-      finalPrice = Math.max(finalPrice, 0); // avoid negative price
+      finalPrice = Math.max(finalPrice, 0);
     }
 
-    // 🧾 Create the order with final (discounted or normal) price
+    // Create the order
     const order = new Order({
       user: req.user._id,
       book: bookId,
@@ -35,19 +77,46 @@ const createOrder = async (req, res) => {
       location_fin: type === 'location' ? location_fin : undefined,
     });
 
-    // Save the order
     await order.save();
 
-    // Create the order notification
+    // Update user's library
+    await updateUserLibrary(req.user._id, [
+      {
+        bookId,
+        type,
+        rentedFrom: type === 'location' ? location_debut : null,
+        rentedTo: type === 'location' ? location_fin : null,
+      },
+    ]);
+
+    // Add points to user
+    if (type === 'achat' || type === 'location') {
+      let earnedPoints = 0;
+      if (type === 'achat') {
+        if (prix >= 30) earnedPoints = 15;
+        else if (prix >= 10) earnedPoints = 10;
+        else earnedPoints = 5;
+      } else if (type === 'location') {
+        if (prix >= 30) earnedPoints = 7;
+        else if (prix >= 10) earnedPoints = 5;
+        else earnedPoints = 2;
+      }
+
+      user.points.push({ amount: earnedPoints, earnedAt: new Date() });
+      user.lastPurchaseDate = new Date();
+      await user.save();
+    }
+
+    // Create notification
     await createNotification(order, req.user._id);
 
-    // Respond with order details and the discount message if applicable
+    // Respond with success
     res.status(201).json({
       message: user.claimedOffer
         ? `Order created with ${user.claimedOffer.discountPercentage}% discount`
         : "Order created successfully",
       order,
-      notification: "You have a new order notification!", // Custom notification message (or adjust as needed)
+      notification: "You have a new order notification!",
     });
 
   } catch (error) {
