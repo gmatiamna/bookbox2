@@ -1,0 +1,47 @@
+@font-face {
+    font-family: 'Zain';
+    src: url('../fonts/Zain-Regular.ttf') format('ttf');
+    font-weight: normal;
+    font-style: normal;
+  }
+  .nav-link {
+    top: 0;
+    font-family: 'Zain', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 100%;
+    letter-spacing: 0;
+  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative; /* to make it flex and centered */
+  }
+  
+  .nav-text {
+    width: 71px;
+    padding-top: 30px;
+    margin: auto;
+    height: 90px;
+    text-align: center;
+    position: relative;
+    z-index: 10; /* make sure the text is above the background */
+  }
+  
+  .nav-text::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+  
+    background: url('data:image/svg+xml;utf8,<svg width="71" height="90" viewBox="0 0 71 90" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M70.4688 -0.5L70.5 86.123L70.4932 86.332C70.4672 86.7493 70.3644 87.1584 70.1885 87.5381L70.0947 87.7246C69.8284 88.2169 69.4428 88.6358 68.9736 88.9434C68.5045 89.2508 67.9659 89.4376 67.4062 89.4863C66.9167 89.5289 66.4246 89.465 65.9639 89.2998L65.7676 89.2227L37.2539 76.959C36.7049 76.7229 36.1134 76.6006 35.5156 76.6006C34.9926 76.6006 34.4745 76.6945 33.9854 76.876L33.7773 76.959L5.2627 89.2227C4.80998 89.4168 4.32124 89.5109 3.83008 89.499L3.61914 89.4873C3.12759 89.445 2.65184 89.2969 2.22461 89.0547L2.04395 88.9453C1.63125 88.6763 1.28261 88.3218 1.02148 87.9072L0.915039 87.7256C0.67943 87.2944 0.541034 86.8182 0.507812 86.3301L0.5 86.1201V-0.5H70.4688Z" fill="%23DFC165" stroke="%23885520"/></svg>') no-repeat center;
+    background-size: 100% 100%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -20;
+  }
+  
+  /* When the nav-link is active, show the svg */
+  .nav-link.active .nav-text::before {
+    opacity: 1;
+  }
+  
