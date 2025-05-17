@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useGetProfileQuery } from '../slices/userApi';
-import "./Nav.css";
+
 import Navbar from './Navbar';
 import { useSelector } from 'react-redux';
 import { Link } from "react-router-dom";
