@@ -9,6 +9,8 @@ import WelcomSlide from "../LandingComponts/WelcomeSlide";
 import WhyCompant from  "../LandingComponts/WhyPartLanding";
 import HowCompant from "../LandingComponts/HowPartlanding";
 import BestRated from "../LandingComponts/BestRated"
+import OfferTitle from "../OffersCompants/OffersTtile"
+import Footer from "../components/Footer";
 const LandingPage = () => {
    const { data: bestSellers, error, isLoading } = useGetBestSellersQuery();
    console.log("bestSellers", bestSellers);
@@ -44,6 +46,8 @@ const LandingPage = () => {
      <WhyCompant/>
      <HowCompant/>
      <BestRated/>
+     <OfferTitle/>
+     <Footer/>
     </div>
   );
 };

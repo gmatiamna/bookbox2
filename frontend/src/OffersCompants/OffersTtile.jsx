@@ -1,9 +1,9 @@
 import React from "react";
-
+import SubscriptionPlans from "./SubscriptionPlans";
 const OffersTitle = () => {
   return (
     <div
-      className="mx-auto h-80 mt-24 pt-20"
+      className="mx-auto  mt-24 p-28"
       style={{
         clipPath: 'polygon(0 9%, 100% 0, 100% 91%, 0% 100%)',
         background: '#00BAC7',
@@ -42,6 +42,12 @@ const OffersTitle = () => {
         Selling or reproducing without the authors permission is prohibited.
         Copyright is protected by law.
       </p>
+<SubscriptionPlans/>
+<p  className="text-white text-[18px] font-[400] text-center mt-4"
+        style={{
+          fontFamily: 'Zain',
+        }}>E-books are instantly available on BookBox after you purchase, subscribe, or rent<br/>
+All content is copyright-protected and owned by BookBox</p>
     </div>
   );
 };

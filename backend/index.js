@@ -11,9 +11,7 @@ const offerRoutes = require('./routes/offerRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const userlibraryRoutes = require('./routes/userlibraryroutes');
-
-
-
+const  subscriptionroutes = require('./routes/subscriptionRoutes');
 const orderNotificationRoutes = require('./routes/orderNotificationRoutes');  
 const cloudinary =require('./cloudinary/cloudinary')
 require('dotenv').config();
@@ -43,7 +41,7 @@ app.use('/api/offers', offerRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/notifications', orderNotificationRoutes);
 app.use('/api/library', userlibraryRoutes);
-
+app.use('/api/subscriptions', subscriptionroutes);
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({

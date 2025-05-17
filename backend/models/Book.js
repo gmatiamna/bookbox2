@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const genre = require('../utils/genre');
+
 const bookSchema = new mongoose.Schema({
   titre: {
     type: String,
@@ -24,16 +25,19 @@ const bookSchema = new mongoose.Schema({
   },
   categorie: [{
     type: String,
-    enum: ["Fantasy", "Science Fiction", "Mystery", "Romance", "Horror", "Thriller", "Historical", "Philosophy", "True Crime", "Business"],
+    enum: [
+      "Fantasy", "Science Fiction", "Mystery", "Romance", "Horror",
+      "Thriller", "Historical", "Philosophy", "True Crime", "Business"
+    ],
     required: true
   }],
   fichierPDF: {
-    type: String, 
+    type: String,
     required: true
   },
   imageCouverture: {
-    type: String, 
-    required: true,
+    type: String,
+    required: true
   },
   noteMoyenne: {
     type: Number,
@@ -57,14 +61,22 @@ const bookSchema = new mongoose.Schema({
     }
   ],
   likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  
   dateAjout: {
     type: Date,
     default: Date.now
   },
+  
+  // ✅ CACHED discount from applied offer
   discountedPrice: {
     type: Number,
-    default: null, 
+    default: null
+  },
+
+  // ✅ Active offer reference
+  offer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Offer',
+    default: null
   }
 });
 
