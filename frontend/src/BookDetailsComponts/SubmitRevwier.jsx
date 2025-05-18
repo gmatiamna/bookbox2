@@ -1,51 +1,20 @@
 import React, { useState } from "react";
 import StarRate from "../components/StarRate";
 import SubmitButton from "../buttons/SubmitButton";
-import StartReadingButton from "../buttons/StartReadingButton";
-import { useCheckHasReviewedQuery } from "../slices/bookApi"; // Adjust path if needed
 
-const SubmitRev = ({ user, bookId }) => {
+const SubmitRev = ({ user}) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
-  const [hasStartedReading, setHasStartedReading] = useState(false); // Track if user clicked "Start Reading"
 
-  // Query to check if the user has already reviewed the book
-  const { data, isLoading, isError, error } = useCheckHasReviewedQuery(
-    { bookId, userId: user?._id },
-    { skip: !user }
-  );
 
-  if (!user) return <div>Loading user...</div>; // Show loading until user is available
+  if (!user) return <div>Loading user...</div>;
 
-  const hasReviewed = data?.hasReviewed;
 
-  if (isLoading) return <div>Checking review status...</div>;
-  if (isError) {
-    console.error("Review status error:", error);
-    return <div>Error checking review status.</div>;
-  }
-
-  const handleStartReadingClick = () => {
-    setHasStartedReading(true); // Mark the user as having started reading
-    console.log("Start Reading clicked:", hasStartedReading); // Debugging log
-  };
-
-  console.log("State of hasStartedReading:", hasStartedReading); // Debugging log
 
   return (
-    <div className="relative w-[40%] mx-auto p-4 bg-[#f7e0c2] rounded-xl shadow-md">
-      {/* Show blur effect and "Start Reading" button if the user hasn't started reading */}
-      {(!hasStartedReading && !hasReviewed) && (
-        <div className="absolute inset-0 backdrop-blur-sm bg-black/40 z-10 rounded-xl flex flex-col items-center justify-center text-white text-center px-4">
-          <p className="text-lg font-semibold mb-4">
-            Please finish the book before posting a review.
-          </p>
-          <StartReadingButton onClick={handleStartReadingClick} />
-        </div>
-      )}
-
-      {/* Main content for reviews */}
-      <div className={`${hasStartedReading || hasReviewed ? "" : "opacity-30 pointer-events-none"}`}>
+    <div className="w-[40%] mx-auto p-4 bg-[#f7e0c2] rounded-xl shadow-md">
+      {/* Main content for reviews.   */}
+      <div>
         <div className="flex items-center gap-3 mb-3">
           <img
             src={user.photo_profil}
@@ -55,12 +24,10 @@ const SubmitRev = ({ user, bookId }) => {
           <span className="font-medium">{user.nom}</span>
         </div>
 
-        {/* Display rating section only if user has started reading and hasn't reviewed */}
-        {hasStartedReading && !hasReviewed && (
-          <div className="mb-3">
-            <StarRate rating={rating} onRatingChange={setRating} />
-          </div>
-        )}
+        {/* Display rating section  */}
+        <div className="mb-3">
+          <StarRate rating={rating} onRatingChange={setRating} />
+        </div>
 
         {/* Input for comment */}
         <textarea
@@ -74,10 +41,11 @@ const SubmitRev = ({ user, bookId }) => {
         {/* Submit button */}
         <div className="mt-4">
           <SubmitButton
-            disabled={!comment || (!hasStartedReading && !rating)}
+            disabled={!comment}
             onClick={() => {
               // handle review submit
               console.log("Submitting review:", { rating, comment });
+              // In a real app, you'd send this data to your backend.
             }}
           />
         </div>

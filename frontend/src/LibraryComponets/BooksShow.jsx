@@ -7,7 +7,7 @@ import {
   useGetAllAuthorsQuery,
 } from "../slices/bookApi";
 
-export default function BookShow() {
+export default function BookShow({userId}) {
   const [filters, setFilters] = useState({
     categorie: "",
     prixMin: 0,
@@ -61,7 +61,7 @@ export default function BookShow() {
 
         <div className="grid grid-cols-3 gap-6 mb-8">
           {paginatedBooks.map((book) => (
-            <BookCard key={book._id} book={book} />
+            <BookCard key={book._id} book={book} userId={userId} />
           ))}
         </div>
 

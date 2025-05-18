@@ -5,14 +5,16 @@ import AddToCartButton from '../buttons/AddToCartButton';
 import LikeButton from '../buttons/ButtonLike';
 import { Link } from 'react-router-dom';
 
-const BookCard = ({ book }) => {
+
+const BookCard = ({ book ,userId}) => {
+ 
   const rating = book.noteMoyenne;
   const roundedRating = Math.round(rating);
 
   return (
     <div className="w-[100%] h-[407px] bg-white shadow-[0px_8px_32px_0px_rgba(0,0,0,0.25)] rounded-[10px] border border-solid p-2 flex flex-col">
       <div>
-      <Link to={`/book/${book._id}`}>
+        <Link to={`/book/${book._id}`}>
           <img
             src={book.imageCouverture}
             alt={book.titre}
@@ -45,7 +47,7 @@ const BookCard = ({ book }) => {
       </div>
 
       <div className="flex justify-between">
-        <LikeButton bookId={book._id} />
+        <LikeButton bookId={book._id} userId={userId} />
         <AddToCartButton bookId={book._id} />
       </div>
     </div>

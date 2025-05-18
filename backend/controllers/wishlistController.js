@@ -14,14 +14,16 @@ exports.addToWishlist = async (req, res) => {
 
     if (!wishlist) {
       wishlist = new Wishlist({ user: userId, books: [bookId] });
-      book.nbLikes = (book.nbLikes || 0) + 1;
+    } else if (wishlist.books.some(id => id.toString() === bookId)) {
+      return res.status(400).json({ message: 'Book already in wishlist' });
     } else {
-      if (!wishlist.books.includes(bookId)) {
-        wishlist.books.push(bookId);
-        book.nbLikes = (book.nbLikes || 0) + 1;
-      } else {
-        return res.status(400).json({ message: 'Book already in wishlist' });
-      }
+      wishlist.books.push(bookId);
+    }
+
+    if (!book.likedBy) book.likedBy = [];
+    if (!book.likedBy.includes(userId.toString())) {
+      book.likedBy.push(userId);
+      book.nbLikes = (book.nbLikes || 0) + 1;
     }
 
     await wishlist.save();
@@ -33,7 +35,6 @@ exports.addToWishlist = async (req, res) => {
   }
 };
 
-// Remove a book from wishlist (Unlike)
 exports.removeFromWishlist = async (req, res) => {
   const userId = req.user._id;
   const { bookId } = req.body;
@@ -46,13 +47,17 @@ exports.removeFromWishlist = async (req, res) => {
       return res.status(404).json({ message: 'Wishlist or Book not found' });
     }
 
-    const index = wishlist.books.indexOf(bookId);
+    const index = wishlist.books.findIndex(id => id.toString() === bookId);
     if (index === -1) {
       return res.status(400).json({ message: 'Book not in wishlist' });
     }
 
     wishlist.books.splice(index, 1);
-    book.nbLikes = Math.max((book.nbLikes || 1) - 1, 0);
+
+    if (book.likedBy) {
+      book.likedBy = book.likedBy.filter(id => id.toString() !== userId.toString());
+      book.nbLikes = Math.max((book.nbLikes || 1) - 1, 0);
+    }
 
     await wishlist.save();
     await book.save();
@@ -77,29 +82,5 @@ exports.getWishlist = async (req, res) => {
     res.status(200).json(wishlist);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching wishlist', error });
-  }
-};
-exports.likeBook = async (req, res) => {
-  const userId = req.user.id;
-  const { bookId } = req.params;
-
-  try {
-    const book = await Book.findById(bookId);
-    if (!book) return res.status(404).json({ message: "Book not found" });
-
-    // prevent duplicate likes — optional
-    if (book.likedBy && book.likedBy.includes(userId)) {
-      return res.status(400).json({ message: "Already liked" });
-    }
-
-    book.nbLikes += 1;
-    book.likedBy = book.likedBy || [];
-    book.likedBy.push(userId);
-    await book.save();
-    console.log("Like clicked", bookId);
-    res.status(200).json({ message: "Liked", likes: book.nbLikes });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
   }
 };

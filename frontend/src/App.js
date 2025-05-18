@@ -14,7 +14,7 @@ import BookDetailsPage from "./pages/BookDetailsPage";
 import MyCollection from './pages/MyCollections';
 import SecureBookViewer from './components/SecureBookViewer';
 import LandingPage from "./pages/LandingPage";
-
+import Wishlist from "./pages/WishlistPage";
 function App() {
   return (
     <div>
@@ -25,6 +25,7 @@ function App() {
         <Route path="/genreupdate" element={<ChooseGenresPage />} />
         <Route path="/profileupload" element={<ProfileuploadForm />} />
 <Route path="/my-collection" element={<MyCollection />} />
+<Route path="/my-Wishlist" element={<Wishlist/>} />
   <Route path="/reader/:bookId" element={  <ProtectedRoute><SecureBookViewer /></ProtectedRoute>} />
         {/* Protected Routes */}
         <Route 

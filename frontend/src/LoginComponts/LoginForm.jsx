@@ -1,9 +1,10 @@
-import React, { useState } from "react"; 
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../slices/userApi";
 import { setCredentials } from "../slices/authslice";
 import { useDispatch } from "react-redux";
 import "../styles/signupbuttonstyle.css";
+
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [mot_de_passe, setMotDePasse] = useState("");
@@ -16,10 +17,10 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); // Reset any previous error before trying login
+    setError(null); // Reset error
 
     try {
-      const { user } = await login({ email, mot_de_passe }).unwrap();
+      const user = await login({ email, mot_de_passe }).unwrap();
       dispatch(setCredentials(user));
       navigate("/home");
     } catch (err) {
@@ -29,15 +30,15 @@ const LoginForm = () => {
   };
 
   return (
-
-  
-<div className="absolute w-[256px] h-[336px] top-[200px] right-[250px] bg-gray p-6 z-[100]"  style={{
-      boxShadow: "5px 10px 50px 0px #00000029",
-    }}>
-    
+    <div
+      className="absolute w-[256px] h-[336px] top-[200px] right-[250px] bg-gray p-6 z-[100]"
+      style={{ boxShadow: "5px 10px 50px 0px #00000029" }}
+    >
       <form onSubmit={handleSubmit} className="space-y-6 mt-10">
-        <div className="relative mb-4 border-b border-gray-300 flex items-center" >
-          <label htmlFor="email" className="block font-semibold mb-6">Email:</label>
+        <div className="relative mb-4 border-b border-gray-300 flex items-center">
+          <label htmlFor="email" className="block font-semibold mb-6">
+            Email:
+          </label>
           <input
             type="email"
             id="email"
@@ -49,7 +50,9 @@ const LoginForm = () => {
         </div>
 
         <div className="relative mb-4 border-b border-gray-300 flex items-center">
-          <label htmlFor="mot_de_passe" className="block font-semibold  mb-6">Password</label>
+          <label htmlFor="mot_de_passe" className="block font-semibold mb-6">
+            Password
+          </label>
           <input
             type="password"
             id="mot_de_passe"
@@ -61,7 +64,10 @@ const LoginForm = () => {
         </div>
 
         {error && <p className="text-red-500">{error}</p>}
-        <a href="" className="text-[#885520] font-[700] ml-16">Forget password ?</a>
+
+        <a href="#" className="text-[#885520] font-[700] ml-16">
+          Forget password?
+        </a>
 
         <button
           type="submit"
@@ -73,14 +79,12 @@ const LoginForm = () => {
             <div className="arrow"></div>
           </div>
         </button>
-      <a href="" className="text-[#885520] ml-16">sign up</a>
+
+        <a href="#" className="text-[#885520] ml-16">
+          Sign up
+        </a>
       </form>
     </div>
-
-
-
-
-
   );
 };
 
