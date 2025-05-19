@@ -15,6 +15,8 @@ import MyCollection from './pages/MyCollections';
 import SecureBookViewer from './components/SecureBookViewer';
 import LandingPage from "./pages/LandingPage";
 import Wishlist from "./pages/WishlistPage";
+import Success from "./paymentscompants/Success";
+import Fail from "./paymentscompants/Fail";
 function App() {
   return (
     <div>
@@ -65,6 +67,24 @@ function App() {
           element={
             <ProtectedRoute>
               <Cart />
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route 
+          path="/success" 
+          element={
+            <ProtectedRoute>
+              <Success/>
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route 
+          path="/fail" 
+          element={
+            <ProtectedRoute>
+              <Fail/>
             </ProtectedRoute>
           }
         />

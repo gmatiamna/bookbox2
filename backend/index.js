@@ -12,7 +12,8 @@ const orderRoutes = require('./routes/orderRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const userlibraryRoutes = require('./routes/userlibraryroutes');
 const  subscriptionroutes = require('./routes/subscriptionRoutes');
-const orderNotificationRoutes = require('./routes/orderNotificationRoutes');  
+const orderNotificationRoutes = require('./routes/orderNotificationRoutes'); 
+ const paymentRoutes = require('./routes/paymentRoutes'); 
 const cloudinary =require('./cloudinary/cloudinary')
 require('dotenv').config();
 const app = express();
@@ -42,6 +43,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/notifications', orderNotificationRoutes);
 app.use('/api/library', userlibraryRoutes);
 app.use('/api/subscriptions', subscriptionroutes);
+app.use('/api/', paymentRoutes);
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({
