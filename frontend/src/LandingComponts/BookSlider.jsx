@@ -1,4 +1,3 @@
-// BooksSlider.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { useGetBooksQuery } from "../slices/bookApi";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -6,9 +5,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const BooksSlider = () => {
   const { data: books, isLoading, isError } = useGetBooksQuery();
   const sliderRef = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
   const [currentCenterIndex, setCurrentCenterIndex] = useState(0);
+  console.log(books)
 
   const scrollLeft = () => {
     if (sliderRef.current) {
@@ -23,29 +21,20 @@ const BooksSlider = () => {
   };
 
   useEffect(() => {
-    if (books && books.length > 0) {
-      const firstBook = document.querySelector(`.book-item-${books[0]._id}`);
-      if (firstBook) {
-        firstBook.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    if (books?.length > 0 && sliderRef.current) {
+      const slider = sliderRef.current;
+      const centerIndex = Math.floor(books.length / 2);
+      const centerBook = slider.children[centerIndex];
+
+      if (centerBook) {
+        const offsetLeft = centerBook.offsetLeft;
+        const centerOffset =
+          offsetLeft - slider.offsetWidth / 2 + centerBook.offsetWidth / 2;
+        slider.scrollLeft = centerOffset;
+        setCurrentCenterIndex(centerIndex);
       }
     }
   }, [books]);
-
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    setStartX(e.clientX);
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDragging || !sliderRef.current) return;
-    const deltaX = e.clientX - startX;
-    sliderRef.current.scrollLeft -= deltaX;
-    setStartX(e.clientX);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
 
   useEffect(() => {
     const slider = sliderRef.current;
@@ -53,14 +42,14 @@ const BooksSlider = () => {
 
     const updateCurrentCenterIndex = () => {
       const children = Array.from(slider.children);
-      const sliderCenter = slider.scrollLeft + slider.offsetWidth / 2;
+      const center = slider.scrollLeft + slider.offsetWidth / 2;
 
       let closestIndex = 0;
       let minDistance = Infinity;
 
       children.forEach((child, index) => {
         const childCenter = child.offsetLeft + child.offsetWidth / 2;
-        const distance = Math.abs(sliderCenter - childCenter);
+        const distance = Math.abs(center - childCenter);
         if (distance < minDistance) {
           closestIndex = index;
           minDistance = distance;
@@ -70,27 +59,23 @@ const BooksSlider = () => {
       setCurrentCenterIndex(closestIndex);
     };
 
-    updateCurrentCenterIndex();
     slider.addEventListener("scroll", updateCurrentCenterIndex);
-    slider.addEventListener("mousedown", handleMouseDown);
-    slider.addEventListener("mousemove", handleMouseMove);
-    slider.addEventListener("mouseup", handleMouseUp);
-    slider.addEventListener("mouseleave", handleMouseUp);
 
     return () => {
       slider.removeEventListener("scroll", updateCurrentCenterIndex);
-      slider.removeEventListener("mousedown", handleMouseDown);
-      slider.removeEventListener("mousemove", handleMouseMove);
-      slider.removeEventListener("mouseup", handleMouseUp);
-      slider.removeEventListener("mouseleave", handleMouseUp);
     };
-  }, [isDragging, startX]);
+  }, []);
 
   return (
     <div className="transition-all duration-500 ease-in-out max-h-[800px] opacity-100 overflow-hidden bg-[#9FB11D] px-6 py-6 relative rounded-b-xl">
-      <h2 className="text-2xl font-bold text-white mb-2 text-center font-zain">A Peek Into the Library</h2>
+      <h2 className="text-2xl font-bold text-white mb-2 text-center font-zain">
+        A Peek Into the Library
+      </h2>
       <p className="text-white text-center mb-6">
-        From timeless classics to trending titles, explore a handpicked glimpse of our vast collection.<br/> Start discovering what’s waiting for you.
+        From timeless classics to trending titles, explore a handpicked glimpse
+        of our vast collection.
+        <br />
+        Start discovering what’s waiting for you.
       </p>
 
       {isLoading ? (
@@ -101,8 +86,14 @@ const BooksSlider = () => {
         <div className="relative">
           <div
             ref={sliderRef}
-            className="flex space-x-0 overflow-x-auto px-2 w-full cursor-grab scrollbar-hide"
-            style={{ scrollSnapType: "x mandatory", scrollBehavior: "smooth" }}
+            className="flex space-x-0 overflow-x-auto px-2 w-full scrollbar-hide"
+            style={{
+              scrollSnapType: "x mandatory",
+              scrollBehavior: "smooth",
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
           >
             {books.map((book, index) => {
               const distance = Math.abs(index - currentCenterIndex);
@@ -110,7 +101,6 @@ const BooksSlider = () => {
               let width = 160;
               let height = 200;
               let scale = 0.8;
-              let rotate = 0;
               let showInfo = false;
               let marginX = 10;
 
@@ -118,26 +108,22 @@ const BooksSlider = () => {
                 width = 200;
                 height = 250;
                 scale = 1;
-                rotate = 0;
                 showInfo = true;
                 marginX = 20;
               } else if (distance === 1) {
                 width = 180;
                 height = 225;
                 scale = 0.9;
-                rotate = index < currentCenterIndex ? -5 : 5;
                 marginX = 15;
               } else if (distance === 2) {
                 width = 160;
                 height = 200;
                 scale = 0.8;
-                rotate = index < currentCenterIndex ? -8 : 8;
                 marginX = 10;
               } else {
                 width = 140;
                 height = 180;
                 scale = 0.7;
-                rotate = 0;
                 marginX = 5;
               }
 
@@ -147,10 +133,9 @@ const BooksSlider = () => {
                   className={`book-item-${book._id} flex-shrink-0 transform transition-all duration-300`}
                   style={{
                     scrollSnapAlign: "center",
-                    userSelect: isDragging ? "none" : "auto",
                     width: `${width}px`,
                     height: `${height + (showInfo ? 60 : 20)}px`,
-                    transform: `scale(${scale}) rotate(${rotate}deg)`,
+                    transform: `scale(${scale})`,
                     margin: `0 ${marginX}px`,
                     position: "relative",
                     cursor: "pointer",
@@ -166,8 +151,12 @@ const BooksSlider = () => {
                   />
                   {showInfo && (
                     <div className="text-center mt-2">
-                      <h3 className="font-zain text-[20px] text-white">{book.titre}</h3>
-                      <p className="font-zain font-bold text-[16px] text-[#724521]">{book.prix_achat.toFixed(2)} DT</p>
+                      <h3 className="font-zain text-[20px] text-white">
+                        {book.titre}
+                      </h3>
+                      <p className="font-zain font-bold text-[16px] text-[#724521]">
+                        {book.prix_achat.toFixed(2)} DT
+                      </p>
                     </div>
                   )}
                 </div>
