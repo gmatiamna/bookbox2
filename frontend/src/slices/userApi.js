@@ -27,6 +27,9 @@ export const userApi = apiSlice.injectEndpoints({
     getProfile: builder.query({
       query: () => "/user/profile",
     }),
+    getUserPoints: builder.query({
+  query: () => "/user/points",
+}),
   }),
   overrideExisting: false,
 });
@@ -36,4 +39,5 @@ export const {
   useSignupMutation,
   useChooseGenresMutation,
   useGetProfileQuery,
+    useGetUserPointsQuery, 
 } = userApi;

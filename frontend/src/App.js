@@ -17,6 +17,7 @@ import LandingPage from "./pages/LandingPage";
 import Wishlist from "./pages/WishlistPage";
 import Success from "./paymentscompants/Success";
 import Fail from "./paymentscompants/Fail";
+import Profile from "./pages/Profile";
 function App() {
   return (
     <div>
@@ -70,7 +71,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-        
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <Profile/>
+            </ProtectedRoute>
+          }
+        />
         <Route 
           path="/success" 
           element={

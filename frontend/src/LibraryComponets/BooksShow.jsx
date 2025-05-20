@@ -21,7 +21,7 @@ export default function BookShow({userId}) {
   const { data: authors = [] } = useGetAllAuthorsQuery();
 
   const [page, setPage] = useState(1);
-  const booksPerPage = 6;
+  const booksPerPage = 9;
   const totalPages = Math.ceil(books.length / booksPerPage);
   const paginatedBooks = books.slice(
     (page - 1) * booksPerPage,
