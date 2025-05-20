@@ -14,10 +14,9 @@ export const bookApi = apiSlice.injectEndpoints({
       query: () => "/offers/active-books",
     }),
     getMostRatedBook: builder.query({
-  query: () => "/books/most-rated",
-  providesTags: ["Book"],
-}),
-
+      query: () => "/books/most-rated",
+      providesTags: ["Book"],
+    }),
     getFilteredBooks: builder.query({
       query: (params) => ({
         url: `/books/filterbook`,
@@ -28,12 +27,12 @@ export const bookApi = apiSlice.injectEndpoints({
     getAllAuthors: builder.query({
       query: () => "/books/authors",
     }),
-     checkHasReviewed: builder.query({
+    checkHasReviewed: builder.query({
       query: ({ bookId, userId }) => `/books/${bookId}/has-reviewed/${userId}`,
     }),
     getLatestComment: builder.query({
-  query: (bookId) => `/books/${bookId}/comments/latest`,
-}),
+      query: (bookId) => `/books/${bookId}/comments/latest`,
+    }),
     getGenres: builder.query({
       query: () => "/books/getGenres",
     }),
@@ -41,8 +40,8 @@ export const bookApi = apiSlice.injectEndpoints({
       query: (id) => `/books/${id}`,
       providesTags: (result, error, id) => [{ type: "Book", id }],
     }),
-      getBestSellers: builder.query({
-      query: () => 'books/best-seller', 
+    getBestSellers: builder.query({
+      query: () => "books/best-seller",
     }),
     addToLikedBooks: builder.mutation({
       query: (bookId) => ({
@@ -60,18 +59,29 @@ export const bookApi = apiSlice.injectEndpoints({
         method: "DELETE",
       }),
     }),
+    getSecurePdf: builder.query({
+      query: (bookId) => `/books/secure-pdf/${bookId}`,
+      providesTags: ["BookAccess"],
+    }),
+    // ✅ Add these two correctly here:
+   addRating: builder.mutation({
+  query: ({ bookId, rating }) => ({
+    url: `/books/${bookId}/rateBook`,
+    method: 'POST',
+    body: { rating },
+  }),
+}),
 
-    // ✅ Add this
-   getSecurePdf: builder.query({
-        query: (bookId) => `/books/secure-pdf/${bookId}`, // Or your actual route
-  providesTags: ['BookAccess'],
+addComment: builder.mutation({
+  query: ({ bookId, texte }) => ({
+    url: `/books/${bookId}/comment`,
+    method: 'POST',
+    body: { texte },
+  }),
 }),
 
   }),
 });
-
-
-// ✅ Don't forget to export it
 export const {
   useGetBooksQuery,
   useGetNewFavoriteBooksQuery,
@@ -81,7 +91,13 @@ export const {
   useGetGenresQuery,
   useGetBookByIdQuery,
   useAddToLikedBooksMutation,
-  useGetLikedBooksQuery,useCheckHasReviewedQuery ,
-  useRemoveFromLikedBooksMutation,useGetSecurePdfQuery,useGetLatestCommentQuery,
-  useGetBestSellersQuery,useGetMostRatedBookQuery
+  useGetLikedBooksQuery,
+  useCheckHasReviewedQuery,
+  useRemoveFromLikedBooksMutation,
+  useGetSecurePdfQuery,
+  useGetLatestCommentQuery,
+  useGetBestSellersQuery,
+  useGetMostRatedBookQuery,
+  useAddRatingMutation,         // ✅ include this
+  useAddCommentMutation         // ✅ and this
 } = bookApi;

@@ -2,7 +2,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { useGetLatestCommentQuery } from "../slices/bookApi";
 import StarRate from "../components/StarRate";
-
+import avatarDefault from "../assets/avatar-def.webp"; 
 const BookComments = () => {
   const { id } = useParams();
   const { data, isLoading, isError } = useGetLatestCommentQuery(id);
@@ -24,11 +24,16 @@ const BookComments = () => {
        <div className="bg-white p-4 rounded-[16px] shadow-md border-2 border-slate-300 w-[729px]">
      
       <div className="flex gap-4 items-start">
-        <img
-          src={userPhoto}
-          alt={userName}
-          className="w-12 h-12 rounded-full object-cover"
-        />
+      <img
+  src={userPhoto}
+  onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = avatarDefault;
+  }}
+  alt={userName}
+  className="w-12 h-12 rounded-full object-cover"
+/>
+
         <div className="flex flex-col flex-grow">
           <div className="flex justify-between">
             <div>

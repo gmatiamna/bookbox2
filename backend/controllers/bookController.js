@@ -152,10 +152,12 @@ const deleteBook = async (req, res) => {
 // @access Private (User)
 const rateBook = async (req, res) => {
   const { id } = req.params;
-  const { note } = req.body;
+  const { rating } = req.body;
+  const userId = req.user._id;
 
-  if (note < 1 || note > 5) {
-    return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+  const ratingValue = Number(rating);
+  if (isNaN(ratingValue) || ratingValue < 1 || ratingValue > 5) {
+    return res.status(400).json({ message: "Invalid rating value" });
   }
 
   try {
@@ -164,33 +166,48 @@ const rateBook = async (req, res) => {
       return res.status(404).json({ message: 'Book not found' });
     }
 
-    // Check if the user has already rated the book
-    const existingRating = book.evaluations.find(
-      (evaluation) => evaluation.user.toString() === req.user._id.toString()
+    book.evaluations = book.evaluations || [];
+
+    const existingRatingIndex = book.evaluations.findIndex(
+      r => r.user && r.user.equals(userId)
     );
-    if (existingRating) {
-      return res.status(400).json({ message: 'You have already rated this book' });
+
+    if (existingRatingIndex !== -1) {
+      book.evaluations[existingRatingIndex].note = ratingValue;
+    } else {
+      book.evaluations.push({ user: userId, note: ratingValue });
     }
 
-    book.evaluations.push({ user: req.user._id, note });
-    book.nbEvaluations += 1;
-    book.noteMoyenne = (
-      book.evaluations.reduce((acc, evaluation) => acc + evaluation.note, 0) / 
-      book.nbEvaluations
-    ).toFixed(1);
+    if (book.evaluations.length === 0) {
+      book.noteMoyenne = 0;
+      book.nbEvaluations = 0;
+    } else {
+      const total = book.evaluations.reduce((sum, evalItem) => sum + (evalItem.note || 0), 0);
+      const average = total / book.evaluations.length;
+      book.noteMoyenne = isNaN(average) ? 0 : average;
+      book.nbEvaluations = book.evaluations.length;
+    }
 
     await book.save();
-    res.status(200).json({ message: 'Book rated successfully' });
+
+    res.status(200).json({ 
+      message: 'Rating submitted successfully', 
+      noteMoyenne: book.noteMoyenne, 
+      nbEvaluations: book.nbEvaluations 
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+
 // @desc Add a comment to a book
 // @route POST /api/books/:id/comment
 // @access Private (User)
 const addComment = async (req, res) => {
   const { id } = req.params;
-  const { texte } = req.body;
+const texte = req.body.texte || req.body.comment;
+
 
   // Ensure the comment text is not empty
   if (!texte || texte.trim().length === 0) {

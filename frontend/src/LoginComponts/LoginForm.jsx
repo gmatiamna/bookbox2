@@ -80,7 +80,7 @@ const LoginForm = () => {
           </div>
         </button>
 
-        <a href="#" className="text-[#885520] ml-16">
+        <a href="/signup" className="text-[#885520] ml-16">
           Sign up
         </a>
       </form>
