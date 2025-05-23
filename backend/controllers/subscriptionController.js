@@ -1,11 +1,47 @@
+// controllers/subscriptionController.js
+
+const UserSubscription = require('../models/UserSubscription');
 const SubscriptionPlan = require('../models/SubscriptionPlan');
+const User = require('../models/User'); 
+const assignPlanToUser = async (req, res) => {
+ try {
+    const { userId, planId } = req.body;
+
+    if (!userId || !planId) {
+      return res.status(400).json({ message: "User ID and Plan ID are required" });
+    }
+
+    const plan = await SubscriptionPlan.findById(planId);
+    if (!plan) {
+      return res.status(404).json({ message: "Subscription plan not found" });
+    }
+
+    const startDate = new Date();
+    const endDate = new Date(startDate.getTime() + plan.durationDays * 24 * 60 * 60 * 1000);
+
+    const userSubscription = new UserSubscription({
+      user: userId,
+      plan: planId,
+      startDate,
+      endDate,
+      status: 'active',
+    });
+
+    await userSubscription.save();
+
+    res.status(200).json({ message: 'Plan assigned successfully', userSubscription });
+  } catch (error) {
+    console.error("❌ assignPlanToUser error:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 // Create a new subscription plan
 const createSubscriptionPlan = async (req, res) => {
   try {
-    const { name, price, duration_days, benefits } = req.body;
+    const { name, price, durationDays, benefits } = req.body;
 
-    if (!name || !price || !duration_days || !benefits) {
+    if (!name || !price || !durationDays || !benefits) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
@@ -14,7 +50,7 @@ const createSubscriptionPlan = async (req, res) => {
       return res.status(400).json({ message: 'This subscription plan already exists.' });
     }
 
-    const newPlan = new SubscriptionPlan({ name, price, duration_days, benefits });
+    const newPlan = new SubscriptionPlan({ name, price, durationDays, benefits });
     await newPlan.save();
 
     res.status(201).json({ message: 'Subscription plan created', plan: newPlan });
@@ -26,7 +62,7 @@ const createSubscriptionPlan = async (req, res) => {
 // Get all subscription plans
 const getAllSubscriptionPlans = async (req, res) => {
   try {
-    const plans = await SubscriptionPlan.find().sort({ duration_days: 1 });
+    const plans = await SubscriptionPlan.find().sort({ durationDays: 1 });
     res.status(200).json(plans);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching plans', error: error.message });
@@ -79,5 +115,5 @@ module.exports = {
   getAllSubscriptionPlans,
   getSubscriptionPlanById,
   updateSubscriptionPlan,
-  deleteSubscriptionPlan
+  deleteSubscriptionPlan,assignPlanToUser
 };

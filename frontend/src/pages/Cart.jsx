@@ -3,12 +3,13 @@ import { useGetUserCartQuery } from "../slices/cartApi";
 import { useBuyAllBooksMutation } from "../slices/orderApi";
 import CartBuyButton from "../buttons/CartBuyAllButton";
 import Nav from "../components/nav";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const { data: cart, isLoading, isError, error } = useGetUserCartQuery();
   const [buyAllBooks, { isLoading: isBuyingAll }] = useBuyAllBooksMutation();
   const [selectedTypes, setSelectedTypes] = useState({});
-
+const navigate = useNavigate();
   if (isLoading)
     return (
       <div className="min-h-screen flex items-center justify-center text-[#724521] text-lg">
@@ -36,32 +37,34 @@ const Cart = () => {
     console.log(`${selectedType} added to cart successfully`);
   };
 
-  const handleBuyAll = async () => {
-    const booksToBuy = cart.items.map((item) => {
-      const selectedType = selectedTypes[item.book._id] || item.type;
-      const now = new Date();
-      const rentedFrom = selectedType === "location" ? now.toISOString() : null;
-      const rentedTo =
-        selectedType === "location"
-          ? new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString()
-          : null;
+const handleBuyAll = async () => {
+  const booksToBuy = cart.items.map((item) => {
+    const selectedType = selectedTypes[item.book._id] || item.type;
+    const now = new Date();
+    const rentedFrom = selectedType === "location" ? now.toISOString() : null;
+    const rentedTo =
+      selectedType === "location"
+        ? new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        : null;
 
-      return {
-        book: item.book._id,
-        type: selectedType,
-        price: calculatePriceWithDiscount(item.book, selectedType),
-        location_debut: rentedFrom,
-        location_fin: rentedTo,
-      };
-    });
+    return {
+      book: item.book._id,
+      type: selectedType,
+      price: calculatePriceWithDiscount(item.book, selectedType),
+      location_debut: rentedFrom,
+      location_fin: rentedTo,
+    };
+  });
 
-    try {
-      await buyAllBooks({ books: booksToBuy }).unwrap();
-      console.log("All items purchased successfully.");
-    } catch (err) {
-      console.error("Failed to buy all:", err);
-    }
-  };
+  try {
+    await buyAllBooks({ books: booksToBuy }).unwrap();
+    console.log("All items purchased successfully.");
+    navigate("/library"); // ✅ Redirect to Library page
+  } catch (err) {
+    console.error("Failed to buy all:", err);
+  }
+};
+
 
   const totalPrice = cart.items.reduce((sum, item) => {
     const selectedType = selectedTypes[item.book._id] || item.type;

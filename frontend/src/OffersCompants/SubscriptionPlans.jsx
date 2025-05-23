@@ -1,20 +1,35 @@
 import React from 'react';
 import { useGetAllSubscriptionsQuery } from '../slices/subscriptionApi';
 import { CheckCircle } from 'lucide-react';
-import axios from 'axios';
 const SubscriptionPlans = () => {
   const { data: plans, isLoading, error } = useGetAllSubscriptionsQuery();
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error fetching plans</p>;
-
-
 const handleChoosePlan = async (plan) => {
   try {
-    const response = await axios.post('/api/payments/subscribe', {
-      planId: plan._id,
+    const amountInMillimes = plan.price * 1000;
+
+    const response = await fetch("http://localhost:5000/api/subscribe/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ amount: amountInMillimes })
     });
-    window.location.href = response.data.payment_url; // redirect to Flouci
+
+    // Parse the JSON response
+    const data = await response.json();
+localStorage.setItem("selectedPlanId", plan._id);
+   
+    if (data?.result?.link) {
+      window.location.href = data.result.link;
+    } else if (data?.payment_url) {
+      window.location.href = data.payment_url;
+    } else {
+      throw new Error("No payment link received.");
+    }
+
   } catch (err) {
     console.error(err);
     alert('Error starting subscription payment');

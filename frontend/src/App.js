@@ -16,6 +16,8 @@ import LandingPage from "./pages/LandingPage";
 import Wishlist from "./pages/WishlistPage";
 import Success from "./paymentscompants/Success";
 import Fail from "./paymentscompants/Fail";
+import SuccessSubscription from "./paymentscompants/SuccessSubscription";
+import FailSubscription from "./paymentscompants/FailSubscription";
 import Profile from "./pages/Profile";
 function App() {
   return (
@@ -92,6 +94,21 @@ function App() {
           element={
             <ProtectedRoute>
               <Fail/>
+            </ProtectedRoute>
+          }
+        />
+        <Route 
+          path="/failSub" 
+          element={
+            <ProtectedRoute>
+              <FailSubscription/>
+            </ProtectedRoute>
+          }
+        /><Route 
+          path="/SuccessSub" 
+          element={
+            <ProtectedRoute>
+              <SuccessSubscription/>
             </ProtectedRoute>
           }
         />

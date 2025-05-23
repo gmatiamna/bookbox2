@@ -25,7 +25,11 @@ const orderSchema = new mongoose.Schema({
     default: Date.now
   },
   location_debut: Date,
-  location_fin: Date
+  location_fin: Date,
+   fromSubscription: {
+    type: Boolean,
+    default: false
+  }
 });
 
 module.exports = mongoose.model('Order', orderSchema);

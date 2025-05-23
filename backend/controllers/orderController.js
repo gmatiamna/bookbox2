@@ -7,6 +7,58 @@ const Cart = require('../models/Cart');  // or wherever your Cart model is defin
 const { createNotification } = require('../controllers/orderNotificationController');
 const { updateUserLibrary } = require('./userlibraryController');
 const { supabase } = require('../supabase/supabaseClient');
+const UserSubscription = require("../models/UserSubscription");
+
+const rentBookWithSubscription = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const bookId = req.params.bookId;
+
+    const now = new Date();
+
+    // ✅ Check if user has an active subscription
+    const activeSub = await UserSubscription.findOne({
+      user: userId,
+      status: "active",
+      startDate: { $lte: now },
+      endDate: { $gte: now },
+    });
+
+    if (!activeSub) {
+      return res.status(403).json({ message: "No active subscription found" });
+    }
+
+    // ✅ Check if already rented
+    const alreadyRented = await Order.findOne({
+      user: userId,
+      book: bookId,
+      type: "location",
+      location_fin: { $gte: now }, // still active
+    });
+
+    if (alreadyRented) {
+      return res.status(400).json({ message: "Book already rented" });
+    }
+
+    const locationStart = now;
+    const locationEnd = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000); // 2 weeks default rental period
+
+    const order = new Order({
+      user: userId,
+      book: bookId,
+      type: "location",
+      location_debut: locationStart,
+      location_fin: locationEnd,
+    });
+
+    await order.save();
+
+    res.status(201).json({ message: "Book rented successfully", order });
+  } catch (err) {
+    console.error("Error renting book with subscription:", err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 // 📦 Create a new order (buy/rent a book)
 const createOrder = async (req, res) => {
@@ -173,4 +225,4 @@ const validateRentalAccess = async (req, res) => {
 // 🔒 Get secure PDF URL
 
 
-module.exports = { createOrder, cancelOrder, getUserOrders, getAllOrders, validateRentalAccess };
+module.exports = { createOrder, cancelOrder, getUserOrders, getAllOrders, validateRentalAccess,rentBookWithSubscription };

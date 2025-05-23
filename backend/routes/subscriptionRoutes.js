@@ -5,7 +5,7 @@ const {
   getAllSubscriptionPlans,
   getSubscriptionPlanById,
   updateSubscriptionPlan,
-  deleteSubscriptionPlan
+  deleteSubscriptionPlan,assignPlanToUser
 } = require('../controllers/subscriptionController');
 
 // You may want to protect these routes with admin middleware later
@@ -14,5 +14,5 @@ router.get('/', getAllSubscriptionPlans);
 router.get('/:id', getSubscriptionPlanById);
 router.put('/:id', updateSubscriptionPlan);
 router.delete('/:id', deleteSubscriptionPlan);
-
+router.post("/add-plan", assignPlanToUser);  
 module.exports = router;
