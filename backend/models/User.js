@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
   },
   photo_profil: {
     type: String,
-    default: 'default-avatar.png',
+  
   },
   claimedOffer: {
     type: mongoose.Schema.Types.ObjectId,

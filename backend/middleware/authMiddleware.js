@@ -4,9 +4,9 @@ const User = require('../models/User');
 
 const protect = asyncHandler(async (req, res, next) => {
   let token;
-  const JWT_SECRET = "abc123"; // Ideally, keep this in an environment variable
+  const JWT_SECRET = "abc123"; 
 
-  // Check if token is in Authorization header or cookies
+ 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
     token = req.headers.authorization.split(' ')[1]; // Get token from Authorization header
   } else if (req.cookies.jwt) {

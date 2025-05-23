@@ -125,6 +125,7 @@ const uploadProfilePhoto = async (req, res) => {
 
     // ✅ Get user ID from auth middleware (assuming JWT auth is used)
     const userId = req.user.id;
+console.log("Authenticated user ID:", req.user);
 
     // ✅ Update the user’s profile picture URL in MongoDB
     const updatedUser = await User.findByIdAndUpdate(
