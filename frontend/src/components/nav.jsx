@@ -56,12 +56,13 @@ const Nav = () => {
 
         {!isLoading && userProfile ? (
           <div className="relative">
-            <img
-              src={userProfile.photo_profil.startsWith('http') ? userProfile.photo_profil : CLOUDINARY_URL}
-              alt="Profile"
-              className="w-10 rounded-md object-cover cursor-pointer"
-              onClick={toggleDropdown}
-            />
+           <img
+  src={userProfile.photo_profil.startsWith('http') ? userProfile.photo_profil : CLOUDINARY_URL}
+  alt="Profile"
+  className="w-10 h-10 rounded-full object-cover cursor-pointer"
+  onClick={toggleDropdown}
+/>
+
              <span className="bg-base-100 absolute bottom-1 right-1 end-0 flex translate-x-2 translate-y-2 transform items-center rounded-full p-1">
               <img src={menuavatar} alt="" />
   </span>

@@ -28,8 +28,16 @@ export const userApi = apiSlice.injectEndpoints({
       query: () => "/user/profile",
     }),
     getUserPoints: builder.query({
-  query: () => "/user/points",
-}),
+      query: () => "/user/points",
+    }),
+    updateProfilePhoto: builder.mutation({
+      query: (formData) => ({
+        url: "/user/update-profile-photo",
+        method: "PUT",
+        body: formData,
+        formData: true,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -39,5 +47,5 @@ export const {
   useSignupMutation,
   useChooseGenresMutation,
   useGetProfileQuery,
-    useGetUserPointsQuery, 
+    useGetUserPointsQuery, useUpdateProfilePhotoMutation
 } = userApi;

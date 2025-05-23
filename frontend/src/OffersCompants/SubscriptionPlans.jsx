@@ -1,12 +1,25 @@
 import React from 'react';
 import { useGetAllSubscriptionsQuery } from '../slices/subscriptionApi';
 import { CheckCircle } from 'lucide-react';
-
+import axios from 'axios';
 const SubscriptionPlans = () => {
   const { data: plans, isLoading, error } = useGetAllSubscriptionsQuery();
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error fetching plans</p>;
+
+
+const handleChoosePlan = async (plan) => {
+  try {
+    const response = await axios.post('/api/payments/subscribe', {
+      planId: plan._id,
+    });
+    window.location.href = response.data.payment_url; // redirect to Flouci
+  } catch (err) {
+    console.error(err);
+    alert('Error starting subscription payment');
+  }
+};
 
   return (
     <div className="flex gap-6 w-[80%] mx-auto mt-6">
@@ -24,9 +37,12 @@ const SubscriptionPlans = () => {
             ))}
           </div>
 
-          <button className="w-[253px] h-[52px] rounded-[6px] bg-[#00BAC7] shadow-[0px_30px_60px_0px_#4A72FF40] text-[#F4F7FF] font-zain font-bold text-[24px] leading-[100%] tracking-[0%] flex items-center justify-center">
-            Choose Plan
-          </button>
+          <button
+  onClick={() => handleChoosePlan(plan)}
+  className="w-[253px] h-[52px] rounded-[6px] bg-[#00BAC7] text-[#F4F7FF] font-bold text-[24px] flex items-center justify-center"
+>
+  Choose Plan
+</button>
         </div>
       ))}
     </div>

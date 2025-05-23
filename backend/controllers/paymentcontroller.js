@@ -1,5 +1,4 @@
 const axios = require("axios");
-
 module.exports = {
   Add: async (req, res) => {
     const url = "https://developers.flouci.com/api/generate_payment";

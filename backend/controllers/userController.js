@@ -103,28 +103,45 @@ const updatePreferredGenres = async (req, res) => {
   }
 };
 
-// @desc    user updateimage
-// @route   POST /api/users/profilephoto
-// @access  Public
+
 const uploadProfilePhoto = async (req, res) => {
   try {
     const { image, fileType } = req.body;
 
-    // Check if format is allowed
+    if (!image || !fileType) {
+      return res.status(400).json({ error: "Image and fileType are required." });
+    }
+
     if (!allowedFormats.includes(fileType)) {
       return res.status(400).json({ error: "Unsupported file format." });
     }
 
-    // Upload to Cloudinary
-    const result = await cloudinary.uploader.upload(image, {
+    const base64DataUri = `data:${fileType};base64,${image}`;
+
+    const result = await cloudinary.uploader.upload(base64DataUri, {
       folder: "avatars",
       public_id: `avatar_${Date.now()}`,
     });
 
+    // ✅ Get user ID from auth middleware (assuming JWT auth is used)
+    const userId = req.user.id;
+
+    // ✅ Update the user’s profile picture URL in MongoDB
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { photo_profil: result.secure_url },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
     res.status(200).json({
-      message: "Image uploaded successfully",
-      url: result.secure_url,
+      message: "Profile photo uploaded and updated successfully",
+      user: updatedUser,
     });
+
   } catch (err) {
     console.error("Upload error:", err);
     res.status(500).json({ error: "Failed to upload image" });
