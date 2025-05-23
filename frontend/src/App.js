@@ -4,7 +4,6 @@ import ChooseGenresPage from "./pages/ChooseGenres";
 import SignupPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import Cart from './pages/Cart';
-import ProfileuploadForm from "./components/profileuploadForm";
 import Home from "./pages/Home";
 import Library from "./pages/Library";
 import Offers from "./pages/Offers";
@@ -26,7 +25,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/genreupdate" element={<ChooseGenresPage />} />
-        <Route path="/profileupload" element={<ProfileuploadForm />} />
+     
 <Route path="/my-collection" element={<MyCollection />} />
 <Route path="/my-Wishlist" element={<Wishlist/>} />
   <Route path="/reader/:bookId" element={  <ProtectedRoute><SecureBookViewer /></ProtectedRoute>} />
