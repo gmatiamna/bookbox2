@@ -8,55 +8,66 @@ const { createNotification } = require('../controllers/orderNotificationControll
 const { updateUserLibrary } = require('./userlibraryController');
 const { supabase } = require('../supabase/supabaseClient');
 const UserSubscription = require("../models/UserSubscription");
+const Userlibrary = require('../models/Userlibrary');
 
 const rentBookWithSubscription = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const bookId = req.params.bookId;
+    const userId = req.user.id;
+    const { bookId } = req.params;
 
+    const user = await User.findById(userId);
+    const book = await Book.findById(bookId);
+
+    if (!user || !book) {
+      return res.status(404).json({ message: 'User or book not found' });
+    }
+
+    // ✅ Check for active subscription
+    const subscription = await UserSubscription.findOne({
+      userId: userId,
+      status: 'active',
+      startDate: { $lte: new Date() },
+      endDate: { $gte: new Date() }
+    });
+
+    if (!subscription) {
+      return res.status(403).json({ message: 'No active subscription' });
+    }
+
+    // ✅ Use your Userlibrary model
+    let userLibrary = await Userlibrary.findOne({ user: userId });
+
+    if (!userLibrary) {
+      userLibrary = new Userlibrary({ user: userId, books: [] });
+    }
+
+    // ✅ Check if book already exists
+    const alreadyExists = userLibrary.books.some(
+      entry => entry.bookId.toString() === bookId
+    );
+
+    if (alreadyExists) {
+      return res.status(409).json({ message: 'Book already in library' });
+    }
+
+    // ✅ Rental logic
     const now = new Date();
+    const rentalEnd = new Date(now);
+    rentalEnd.setDate(now.getDate() + 30);
 
-    // ✅ Check if user has an active subscription
-    const activeSub = await UserSubscription.findOne({
-      user: userId,
-      status: "active",
-      startDate: { $lte: now },
-      endDate: { $gte: now },
+    userLibrary.books.push({
+      bookId: bookId,
+      type: 'location',
+      rentedFrom: now,
+      rentedTo: rentalEnd,
     });
 
-    if (!activeSub) {
-      return res.status(403).json({ message: "No active subscription found" });
-    }
+    await userLibrary.save();
 
-    // ✅ Check if already rented
-    const alreadyRented = await Order.findOne({
-      user: userId,
-      book: bookId,
-      type: "location",
-      location_fin: { $gte: now }, // still active
-    });
-
-    if (alreadyRented) {
-      return res.status(400).json({ message: "Book already rented" });
-    }
-
-    const locationStart = now;
-    const locationEnd = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000); // 2 weeks default rental period
-
-    const order = new Order({
-      user: userId,
-      book: bookId,
-      type: "location",
-      location_debut: locationStart,
-      location_fin: locationEnd,
-    });
-
-    await order.save();
-
-    res.status(201).json({ message: "Book rented successfully", order });
+    return res.status(200).json({ message: 'Book rented and added to library' });
   } catch (err) {
-    console.error("Error renting book with subscription:", err.message);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ rentBookWithSubscription error:", err);
+    return res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 

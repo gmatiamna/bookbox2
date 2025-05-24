@@ -13,7 +13,7 @@ const { protect } = require('../middleware/authMiddleware'); // Auth check
 
 // 📦 Create a new order (buy/rent a book)
 router.post('/', protect, createOrder);
-router.post("/rent/subscription/:bookId", protect, rentBookWithSubscription);
+router.post("/rent-subscription/:bookId", protect, rentBookWithSubscription);
 
 // 📂 Get all orders (admin only)
 router.get('/all', protect, getAllOrders); // Add role check in controller

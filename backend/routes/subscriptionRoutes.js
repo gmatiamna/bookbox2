@@ -5,14 +5,17 @@ const {
   getAllSubscriptionPlans,
   getSubscriptionPlanById,
   updateSubscriptionPlan,
-  deleteSubscriptionPlan,assignPlanToUser
+  deleteSubscriptionPlan,assignPlanToUser,checkActiveSubscription
 } = require('../controllers/subscriptionController');
-
+const { protect } = require('../middleware/authMiddleware'); 
 // You may want to protect these routes with admin middleware later
 router.post('/', createSubscriptionPlan);
 router.get('/', getAllSubscriptionPlans);
+
+router.post("/add-plan",protect, assignPlanToUser);  
+
+router.get('/active', protect, checkActiveSubscription);
 router.get('/:id', getSubscriptionPlanById);
 router.put('/:id', updateSubscriptionPlan);
 router.delete('/:id', deleteSubscriptionPlan);
-router.post("/add-plan", assignPlanToUser);  
 module.exports = router;

@@ -16,8 +16,9 @@ export const subscriptionApi = apiSlice.injectEndpoints({
         body: newPlan,
       }),
     }),
-
-    // 🔥 NEW: Assign plan to user after successful payment
+    checkActiveSubscription: builder.query({
+      query: () => '/subscriptions/active',
+    }),
     addPlanToUser: builder.mutation({
       query: ({ userId, planId }) => ({
         url: '/subscriptions/add-plan',
@@ -32,5 +33,6 @@ export const {
   useGetAllSubscriptionsQuery,
   useGetSubscriptionByIdQuery,
   useCreateSubscriptionMutation,
-  useAddPlanToUserMutation, // export the new mutation
+  useCheckActiveSubscriptionQuery,  // This will now work correctly
+  useAddPlanToUserMutation,
 } = subscriptionApi;

@@ -3,9 +3,36 @@
 const UserSubscription = require('../models/UserSubscription');
 const SubscriptionPlan = require('../models/SubscriptionPlan');
 const User = require('../models/User'); 
+const checkActiveSubscription = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const now = new Date();
+console.log("User ID from token:", req.user._id);
+
+    const activeSubscription = await UserSubscription.findOne({
+      userId: userId,
+      status: 'active',
+      startDate: { $lte: now },
+      endDate: { $gte: now },
+    });
+
+    if (activeSubscription) {
+      return res.json({ hasActiveSubscription: true });
+    } else {
+      return res.json({ hasActiveSubscription: false });
+    }
+  } catch (err) {
+    console.error('Error checking subscription:', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
 const assignPlanToUser = async (req, res) => {
  try {
-    const { userId, planId } = req.body;
+    const userId = req.user._id;
+    const { planId } = req.body;
 
     if (!userId || !planId) {
       return res.status(400).json({ message: "User ID and Plan ID are required" });
@@ -20,7 +47,7 @@ const assignPlanToUser = async (req, res) => {
     const endDate = new Date(startDate.getTime() + plan.durationDays * 24 * 60 * 60 * 1000);
 
     const userSubscription = new UserSubscription({
-      user: userId,
+      userId: userId,
       plan: planId,
       startDate,
       endDate,
@@ -115,5 +142,5 @@ module.exports = {
   getAllSubscriptionPlans,
   getSubscriptionPlanById,
   updateSubscriptionPlan,
-  deleteSubscriptionPlan,assignPlanToUser
+  deleteSubscriptionPlan,assignPlanToUser,checkActiveSubscription
 };

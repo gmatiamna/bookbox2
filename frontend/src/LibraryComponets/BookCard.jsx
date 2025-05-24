@@ -2,15 +2,19 @@ import React from 'react';
 import PropTypes from "prop-types";
 import StarRate from "../components/StarRate";
 import AddToCartButton from '../buttons/AddToCartButton';
+import RentBookButton from '../buttons/REntSubButton';
 import LikeButton from '../buttons/ButtonLike';
 import { Link } from 'react-router-dom';
+import { useCheckActiveSubscriptionQuery } from '../slices/subscriptionApi';
 
 
 const BookCard = ({ book ,userId}) => {
- 
+   const { data, isLoading, isError } = useCheckActiveSubscriptionQuery();
   const rating = book.noteMoyenne;
   const roundedRating = Math.round(rating);
-
+ if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Error loading subscription info.</p>;
+    const hasActiveSubscription = data?.hasActiveSubscription;
   return (
     <div className="w-[100%] h-[407px] bg-white shadow-[0px_8px_32px_0px_rgba(0,0,0,0.25)] rounded-[10px] border border-solid p-2 flex flex-col">
       <div>
@@ -48,7 +52,12 @@ const BookCard = ({ book ,userId}) => {
 
       <div className="flex justify-between">
         <LikeButton bookId={book._id} userId={userId} />
-        <AddToCartButton bookId={book._id} />
+      {hasActiveSubscription ? (
+  <RentBookButton bookId={book._id} />
+) : (
+  <AddToCartButton bookId={book._id} />
+)}
+
       </div>
     </div>
   );
