@@ -40,7 +40,7 @@ const StyledWrapper = styled.div`
     justify-content: center;
     align-items: center;
     border-radius: 5px;
-    background: #183153;
+    background: #00BAC7;
     font-family: "Montserrat", sans-serif;
     box-shadow: 0px 6px 24px 0px rgba(0, 0, 0, 0.2);
     overflow: hidden;

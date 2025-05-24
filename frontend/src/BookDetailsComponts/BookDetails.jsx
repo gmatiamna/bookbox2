@@ -1,8 +1,11 @@
-import React ,{useEffect} from "react";
+import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
 import { useGetBookByIdQuery } from "../slices/bookApi";
+import { useCheckActiveSubscriptionQuery } from "../slices/subscriptionApi";
+
 import AddToCartButton from "../buttons/AddToCartButton";
+import RentBookButton from "../buttons/REntSubButton";
 import StarRate from "../components/StarRate";
 import comment from "../assets/comment.png";
 import heart from "../assets/Heart Like.png";
@@ -14,9 +17,10 @@ const BookDetails = ({ setNoteMoyenne }) => {
   const { id } = useParams();
   const { data: book, isLoading, isError } = useGetBookByIdQuery(id);
   const { userInfo } = useSelector((state) => state.auth);
+  const { data: subData, isLoading: subLoading, isError: subError } = useCheckActiveSubscriptionQuery();
+
   const userLikedBooks = userInfo?.likedBooks || [];
 
-  // ✅ Always call useEffect before any return
   useEffect(() => {
     if (book?.noteMoyenne && setNoteMoyenne) {
       console.log("Setting noteMoyenne to:", book.noteMoyenne);
@@ -24,15 +28,15 @@ const BookDetails = ({ setNoteMoyenne }) => {
     }
   }, [book, setNoteMoyenne]);
 
-  // ✅ Conditional rendering after hooks
   if (isLoading) return <p>Loading book details...</p>;
   if (isError) return <p>Failed to load book details.</p>;
   if (!book) return <p>No book found.</p>;
 
-  // ✅ Safe to access `book._id` now
   const rating = book.noteMoyenne || 0;
   const roundedRating = Math.round(rating);
   const isBookLiked = userLikedBooks.includes(book._id);
+  const hasActiveSubscription = subData?.hasActiveSubscription;
+
   return (
     <div className="w-[90%] mx-auto mt-[120px] px-4 relative">
       <div className="flex flex-col md:flex-row gap-8">
@@ -41,6 +45,7 @@ const BookDetails = ({ setNoteMoyenne }) => {
           alt={book.titre}
           className="w-[280px] h-[418px] rounded-[10px] object-cover shadow-md"
         />
+
         <div className="grid gap-2">
           <h1 className="font-zain font-bold text-[52px] leading-[24px] tracking-[0px] text-black">
             {book.titre}
@@ -75,7 +80,7 @@ const BookDetails = ({ setNoteMoyenne }) => {
               {book.auteur}
             </p>
 
-            <div className="flex  gap-2">
+            <div className="flex gap-2">
               {book.categorie?.map((genre, index) => (
                 <div
                   key={index}
@@ -110,7 +115,15 @@ const BookDetails = ({ setNoteMoyenne }) => {
             </div>
 
             <div className="flex gap-1">
-              <AddToCartButton bookId={book._id} className="bg-[#00BAC7] w-[150px]" />
+              {subLoading ? (
+                <p className="text-gray-500 text-sm mt-4">Checking subscription...</p>
+              ) : subError ? (
+                <AddToCartButton bookId={book._id} className="bg-[#00BAC7] w-[150px]" />
+              ) : hasActiveSubscription ? (
+                <RentBookButton bookId={book._id} />
+              ) : (
+                <AddToCartButton bookId={book._id} className="bg-[#00BAC7] w-[150px]" />
+              )}
               <HeartButton bookId={book._id} isAlreadyLiked={isBookLiked} />
             </div>
           </div>
