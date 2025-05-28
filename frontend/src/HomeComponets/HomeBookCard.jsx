@@ -11,7 +11,7 @@ const HomeBookCard = ({ image, title, price, book }) => {
   const hasActiveSubscription = data?.hasActiveSubscription;
 
   return (
-    <div className="relative w-[180px] h-[185px] border border-[#62748E] rounded-[15px] overflow-hidden group">
+    <div className="relative w-[200px] h-[205px] border border-[#62748E] rounded-[15px] overflow-hidden group">
       <Link to={`/book/${book._id}`}>
         <img src={image} alt={title} className="w-full h-full object-cover" />
       </Link>

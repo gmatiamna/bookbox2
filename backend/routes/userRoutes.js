@@ -11,7 +11,7 @@ const {
   getUserPoints,
   updatePreferredGenres,
   forgotPassword,   // <-- Add this
-  resetPassword     // <-- Add this
+  resetPassword ,getUserStats    // <-- Add this
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 const genres = require('../utils/genre');
@@ -29,7 +29,7 @@ router.post('/login', loginUser);
 router.put('/update-profile-photo', protect, uploadProfilePhoto);
 router.get('/points', protect, getUserPoints);
 router.patch('/genres', protect, updatePreferredGenres);
-
+router.get('/:id/stats', getUserStats);
 // 👉 Password reset routes
 router.post('/forgot-password', forgotPassword); // Send reset email
 router.post('/reset-password/:token', resetPassword); // Actually reset password

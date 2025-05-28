@@ -1,4 +1,5 @@
 const Book = require('../models/Book');
+const Userlibrary = require('../models/Userlibrary'); // or wherever your model is
 const mongoose = require('mongoose');
 const genre = require('../utils/genre');
 const uploadToSupabase = require('../utils/uploadToSupabase');  
@@ -405,27 +406,50 @@ const getBookPdf = async (req, res) => {
     const userId = req.user._id;
     const bookId = req.params.bookId;
 
+    const now = new Date();
+
+    // 🔍 Check regular orders (buy or rent)
     const orders = await Order.find({ user: userId, book: bookId });
 
-    const now = new Date();
-    const hasAccess = orders.some(order => {
+    let hasAccess = orders.some(order => {
       if (order.type === 'achat') return true;
       if (order.type === 'location') {
-        return order.location_debut <= now && order.location_fin >= now;
+        return new Date(order.location_debut) <= now && new Date(order.location_fin) >= now;
       }
       return false;
     });
+
+    let canDownload = orders.some(order => order.type === 'achat');
+
+    // 🔍 If no access via Order, check Userlibrary (for subscription rentals)
+    if (!hasAccess) {
+      const userLibrary = await Userlibrary.findOne({ user: userId });
+      if (userLibrary) {
+        const bookEntry = userLibrary.books.find(
+          entry => entry.bookId.toString() === bookId
+        );
+
+        if (bookEntry && bookEntry.type === 'location') {
+          const rentedFrom = new Date(bookEntry.rentedFrom);
+          const rentedTo = new Date(bookEntry.rentedTo);
+          if (rentedFrom <= now && rentedTo >= now) {
+            hasAccess = true;
+            canDownload = false; // No download for subscription-based rentals
+          }
+        } else if (bookEntry && bookEntry.type === 'achat') {
+          hasAccess = true;
+          canDownload = true;
+        }
+      }
+    }
 
     if (!hasAccess) {
       return res.status(403).json({ message: "No access to this book" });
     }
 
-    const canDownload = orders.some(order => order.type === 'achat');
-
     const book = await Book.findById(bookId);
     if (!book) return res.status(404).json({ message: "Book not found" });
 
-    // ✅ Extract only the file name from the public URL
     const fullUrl = book.fichierPDF || book.pdf_url;
     const fileName = decodeURIComponent(
       fullUrl.replace(
@@ -434,19 +458,17 @@ const getBookPdf = async (req, res) => {
       )
     );
 
-    const { data, error } = await supabase
-      .storage
+    const { data, error } = await supabase.storage
       .from('bookpdf')
-      .createSignedUrl(fileName, 60); // URL valid for 60 seconds
+      .createSignedUrl(fileName, 60);
 
     if (error || !data?.signedUrl) {
       console.error('Supabase error:', error);
       return res.status(500).json({ message: 'Failed to generate secure PDF URL', error });
     }
 
-    // If the user cannot download, we add headers to prevent download
     if (!canDownload) {
-      res.setHeader('Content-Disposition', 'inline'); // Make it view-only
+      res.setHeader('Content-Disposition', 'inline');
     }
 
     res.status(200).json({
@@ -459,6 +481,7 @@ const getBookPdf = async (req, res) => {
     res.status(500).json({ message: 'Error fetching book', error: err.message });
   }
 };
+
 const getLatestComment = async (req, res) => {
   try {
     const { id } = req.params;

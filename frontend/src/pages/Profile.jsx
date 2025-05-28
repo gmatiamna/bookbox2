@@ -6,7 +6,7 @@ import {
 } from "../slices/userApi";
 import Nav from "../components/nav";
 import avatarDefault from "../assets/avatar-def.webp";
-
+import UserStats from "../ProfileCompands/Stats"
 function ProfileUploadPopup({ onClose, onUploadSuccess }) {
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -199,6 +199,7 @@ function Profile() {
             <p className="text-xl font-bold text-yellow-700">{totalPoints} pts</p>
           </div>
         </div>
+       < UserStats/>
       </div>
 
       {/* Upload popup */}

@@ -57,7 +57,12 @@ const Nav = () => {
         {!isLoading && userProfile ? (
           <div className="relative">
            <img
-  src={userProfile.photo_profil.startsWith('http') ? userProfile.photo_profil : CLOUDINARY_URL}
+src={
+  userProfile?.photo_profil && userProfile.photo_profil.startsWith('')
+    ? userProfile.photo_profil
+    : CLOUDINARY_URL
+}
+
   alt="Profile"
   className="w-10 h-10 rounded-full object-cover cursor-pointer"
   onClick={toggleDropdown}

@@ -1,4 +1,3 @@
-// src/api/userApi.js
 import { apiSlice } from "./apiSlice";
 
 export const userApi = apiSlice.injectEndpoints({
@@ -38,6 +37,11 @@ export const userApi = apiSlice.injectEndpoints({
         formData: true,
       }),
     }),
+
+    // NEW: getUserStats query
+    getUserStats: builder.query({
+      query: (userId) => `/user/${userId}/stats`,
+    }),
   }),
   overrideExisting: false,
 });
@@ -47,5 +51,9 @@ export const {
   useSignupMutation,
   useChooseGenresMutation,
   useGetProfileQuery,
-    useGetUserPointsQuery, useUpdateProfilePhotoMutation
+  useGetUserPointsQuery,
+  useUpdateProfilePhotoMutation,
+
+  // NEW export
+  useGetUserStatsQuery,
 } = userApi;

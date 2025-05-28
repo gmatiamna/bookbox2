@@ -2,6 +2,8 @@ const asyncHandler = require("express-async-handler");
 const User = require('../models/User');
 const Book = require('../models/Book');
 const Offer=require('../models/Offer')
+const UserLibrary = require('../models/Userlibrary'); // adjust the path accordingly
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const HttpError = require("../models/http-error");
@@ -367,6 +369,24 @@ const resetPassword = asyncHandler(async (req, res, next) => {
     message: 'Password has been reset successfully',
   });
 });
+const getUserStats = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const library = await Library.findOne({ user: userId });
+
+    if (!library) return res.status(404).json({ message: 'Library not found' });
+
+    const rentedCount = library.books.filter(book => book.type === 'location').length;
+    const boughtCount = library.books.filter(book => book.type === 'achat').length;
+
+    // Optional: you can calculate points or other stats here too
+
+    res.json({ rentedCount, boughtCount });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
 module.exports = {
   updateUserProfile,
@@ -374,6 +394,6 @@ module.exports = {
   loginUser,
   getUserProfile,
   logoutUser,uploadProfilePhoto,getUserPoints,updatePreferredGenres, forgotPassword,
-  resetPassword,
+  resetPassword,getUserStats
   
 };

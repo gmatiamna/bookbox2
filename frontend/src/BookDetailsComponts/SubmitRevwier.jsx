@@ -43,7 +43,11 @@ console.log("User object:", user);
   className="w-10 h-10 rounded-full object-cover"
 />
 
-<span className="font-medium">{currentUser.nom}</span>
+{currentUser ? (
+  <span className="font-medium">{currentUser.nom}</span>
+) : (
+  <span className="font-medium text-gray-500">Anonymous</span>
+)}
         </div>
 
         <div className="rounded-[16px] p-3">
