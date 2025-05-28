@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useGetUserLibraryQuery } from "../slices/orderApi";
 import { Link } from "react-router-dom";
 import Nav from "../components/nav";
-
+import AnimationCollaction from "../assets/animation/AnimationCollection";
 const MyCollection = () => {
   const { data: library = [], isLoading, isError } = useGetUserLibraryQuery();
 
@@ -28,7 +28,8 @@ const MyCollection = () => {
         <h1 className="text-3xl font-bold mb-6 text-[#724521]">My Collection</h1>
 
         {isEmpty ? (
-          <div className="text-center text-gray-600 py-20">
+          <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 text-gray-600 text-center ">
+            <AnimationCollaction/>
             <p className="text-lg mb-4">Your collection is currently empty.</p>
             <p className="text-md mb-6">Start paying and begin building your collection today!</p>
             <Link
