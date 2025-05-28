@@ -22,7 +22,7 @@ const MyCollection = () => {
   const isEmpty = isError || library.length === 0;
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className=" min-h-screen">
       <Nav />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-24">
         <h1 className="text-3xl font-bold mb-6 text-[#724521]">My Collection</h1>

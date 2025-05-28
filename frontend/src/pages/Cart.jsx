@@ -4,7 +4,7 @@ import { useBuyAllBooksMutation } from "../slices/orderApi";
 import CartBuyButton from "../buttons/CartBuyAllButton";
 import Nav from "../components/nav";
 import { useNavigate } from "react-router-dom";
-
+import AnimationCart from "../assets/animation/AnimationCart";
 const Cart = () => {
   const { data: cart, isLoading, isError, error } = useGetUserCartQuery();
   const [buyAllBooks, { isLoading: isBuyingAll }] = useBuyAllBooksMutation();
@@ -73,13 +73,14 @@ const handleBuyAll = async () => {
   }, 0);
 
   return (
-    <div className="bg-[#f9f6f1] min-h-screen">
+    <div className="min-h-screen">
       <Nav />
       <div className="max-w-6xl mx-auto px-4 py-8 mt-24">
         <h2 className="text-3xl font-bold text-[#724521] mb-6">Your Cart</h2>
 
         {cart.items.length === 0 ? (
-          <div className="text-center text-gray-500 mt-20">
+          <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 text-gray-600 text-center">
+            <AnimationCart/>
             <p className="text-lg">Your cart is empty.</p>
             <p className="mt-2">
               Explore the <span className="text-[#724521] font-semibold">Library</span> to add books!

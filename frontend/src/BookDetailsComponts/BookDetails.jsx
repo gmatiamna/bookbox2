@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useGetBookByIdQuery } from "../slices/bookApi";
 import { useCheckActiveSubscriptionQuery } from "../slices/subscriptionApi";
-
+import AddToWishlistButton from "../buttons/AddToWishlist";
 import AddToCartButton from "../buttons/AddToCartButton";
 import RentBookButton from "../buttons/REntSubButton";
 import StarRate from "../components/StarRate";
@@ -115,6 +115,7 @@ const BookDetails = ({ setNoteMoyenne }) => {
             </div>
 
             <div className="flex gap-1">
+
               {subLoading ? (
                 <p className="text-gray-500 text-sm mt-4">Checking subscription...</p>
               ) : subError ? (
@@ -125,6 +126,8 @@ const BookDetails = ({ setNoteMoyenne }) => {
                 <AddToCartButton bookId={book._id} className="bg-[#00BAC7] w-[150px]" />
               )}
               <HeartButton bookId={book._id} isAlreadyLiked={isBookLiked} />
+                <AddToWishlistButton bookId={book._id} />
+
             </div>
           </div>
         </div>
