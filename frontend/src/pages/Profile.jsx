@@ -138,8 +138,11 @@ function Profile() {
 
   if (loadingProfile || loadingPoints)
     return <div className="p-4 text-center">Loading...</div>;
+  
+  console.log("User data:", user);
 
   const {
+    _id,
     nom,
     email,
     d_ness,
@@ -147,6 +150,7 @@ function Profile() {
     genre_prefere,
     photo_profil,
   } = user || {};
+  // console.log("id ", _id);
 
   const totalPoints = pointsData?.totalPoints || 0;
 
@@ -199,7 +203,7 @@ function Profile() {
             <p className="text-xl font-bold text-yellow-700">{totalPoints} pts</p>
           </div>
         </div>
-       < UserStats/>
+       < UserStats userId={_id}/>
       </div>
 
       {/* Upload popup */}
