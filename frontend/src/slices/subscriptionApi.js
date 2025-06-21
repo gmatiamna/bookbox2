@@ -5,9 +5,11 @@ export const subscriptionApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllSubscriptions: builder.query({
       query: () => '/subscriptions',
+      providesTags: ['Subscription'], // tag to invalidate after mutations
     }),
     getSubscriptionById: builder.query({
       query: (id) => `/subscriptions/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Subscription', id }],
     }),
     createSubscription: builder.mutation({
       query: (newPlan) => ({
@@ -15,6 +17,22 @@ export const subscriptionApi = apiSlice.injectEndpoints({
         method: 'POST',
         body: newPlan,
       }),
+      invalidatesTags: ['Subscription'],
+    }),
+    updateSubscription: builder.mutation({
+      query: ({ id, ...patch }) => ({
+        url: `/subscriptions/${id}`,
+        method: 'PUT',
+        body: patch,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Subscription', id }],
+    }),
+    deleteSubscription: builder.mutation({
+      query: (id) => ({
+        url: `/subscriptions/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Subscription'],
     }),
     checkActiveSubscription: builder.query({
       query: () => '/subscriptions/active',
@@ -33,6 +51,8 @@ export const {
   useGetAllSubscriptionsQuery,
   useGetSubscriptionByIdQuery,
   useCreateSubscriptionMutation,
-  useCheckActiveSubscriptionQuery,  // This will now work correctly
+  useUpdateSubscriptionMutation,
+  useDeleteSubscriptionMutation,
+  useCheckActiveSubscriptionQuery,
   useAddPlanToUserMutation,
 } = subscriptionApi;

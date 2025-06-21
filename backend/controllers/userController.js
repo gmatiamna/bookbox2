@@ -29,12 +29,12 @@ const registerUser = asyncHandler(async (req, res, next) => {
     return next(new HttpError("User already exists", 400));
   }
 
-  // 🟨 Default values
+  //  Default values
   let claimedOffer = null;
   let offerExpiresAt = null;
 
-  // 🟩 Find special offer
-  const offer = await Offer.findOne({ type: "first_time" }); // OR { title: "Special 50% Off ..." }
+  //  Find special offer
+  const offer = await Offer.findOne({ type: "first_time" }); 
 
   if (offer) {
     claimedOffer = offer._id;

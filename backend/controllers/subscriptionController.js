@@ -1,5 +1,4 @@
 // controllers/subscriptionController.js
-
 const UserSubscription = require('../models/UserSubscription');
 const SubscriptionPlan = require('../models/SubscriptionPlan');
 const User = require('../models/User'); 
@@ -26,9 +25,6 @@ console.log("User ID from token:", req.user._id);
     return res.status(500).json({ message: 'Server error' });
   }
 };
-
-
-
 const assignPlanToUser = async (req, res) => {
  try {
     const userId = req.user._id;

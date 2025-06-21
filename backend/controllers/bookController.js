@@ -25,9 +25,7 @@ const createBook = async (req, res) => {
       .map(c => c.trim());
 
     const pdfFile = req.files?.pdf?.[0];
-    console.log("📥 PDF File:", pdfFile);
     const imageFile = req.files?.image?.[0];
-    console.log("📥 Image File:", imageFile);
     const pdfUrl = await uploadToSupabase(pdfFile, 'bookpdf');
     console.log("📦 PDF Buffer Length:", pdfFile?.buffer?.length);
     const imageUrl = await uploadToSupabase(imageFile, 'bookcouvre');
@@ -35,7 +33,6 @@ const createBook = async (req, res) => {
     if (!pdfUrl || !imageUrl) {
       return res.status(500).json({ message: 'Failed to upload files to Supabase' });
     }
-
     const newBook = new Book({
       titre,
       auteur,
@@ -46,11 +43,8 @@ const createBook = async (req, res) => {
       fichierPDF: pdfUrl,
       imageCouverture: imageUrl,
     });
-
     await newBook.save();
-
     res.status(201).json({ message: 'Book created successfully', book: newBook });
-
   } catch (err) {
     console.error('❌ Book creation failed:', err.message);
     res.status(500).json({ message: 'Server Error', error: err.message });
@@ -107,22 +101,56 @@ const getBookById = async (req, res) => {
 // @access Private (Admin only)
 const updateBook = async (req, res) => {
   const { id } = req.params;
-  const { titre, auteur, description, prix, categorie, fichierPDF, estALouer } = req.body;
-  if (categorie && !allowedGenres.includes(categorie)) {
-    return res.status(400).json({ message: `Invalid category. Must be one of: ${allowedGenres.join(', ')}` });
+  // Destructure remise and prix_achat (to calculate discount), plus others
+  const {
+    titre,
+    auteur,
+    description,
+    prix_achat,
+    prix_location,
+    categorie,
+    fichierPDF,
+    remise, // new discount percentage field (optional)
+    estALouer
+  } = req.body;
+
+  // Validate categories if needed (assuming allowedGenres is an array of valid categories)
+  if (categorie && !categorie.every(cat => allowedGenres.includes(cat))) {
+    return res.status(400).json({
+      message: `Invalid category. Must be one or more of: ${allowedGenres.join(", ")}`
+    });
   }
+
+  // Calculate discountedPrice if remise is provided and prix_achat exists
+  let discountedPrice = null;
+  if (remise != null && prix_achat != null) {
+    const remiseNum = Number(remise);
+    const prixAchatNum = Number(prix_achat);
+    if (!isNaN(remiseNum) && !isNaN(prixAchatNum)) {
+      discountedPrice = prixAchatNum - (prixAchatNum * remiseNum) / 100;
+    }
+  }
+
   try {
-    const updatedBook = await Book.findByIdAndUpdate(id, {
-      titre,
-      auteur,
-      description,
-      prix,
-      categorie,
-      fichierPDF
-    }, { new: true });
+    const updatedBook = await Book.findByIdAndUpdate(
+      id,
+      {
+        titre,
+        auteur,
+        description,
+        prix_achat,
+        prix_location,
+        categorie,
+        fichierPDF,
+        remise, // store discount percentage
+        discountedPrice, // store calculated discounted price
+        estALouer
+      },
+      { new: true }
+    );
 
     if (!updatedBook) {
-      return res.status(404).json({ message: 'Book not found' });
+      return res.status(404).json({ message: "Book not found" });
     }
 
     res.status(200).json(updatedBook);

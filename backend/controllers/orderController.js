@@ -90,21 +90,16 @@ const createOrder = async (req, res) => {
 
     for (const b of books) {
       console.log("📦 Incoming order request body:", req.body);
-
       const { book: bookId, type, price, location_debut, location_fin } = b;
-
       const book = await Book.findById(bookId);
       if (!book) continue; // skip invalid books
-
       let finalPrice = price;
-
       // apply discount if any
       if (user.claimedOffer) {
         const offer = user.claimedOffer;
         finalPrice = price - (price * (offer.discountPercentage / 100));
         finalPrice = Math.max(finalPrice, 0);
       }
-
       const order = new Order({
         user: userId,
         book: bookId,
@@ -113,10 +108,8 @@ const createOrder = async (req, res) => {
         location_debut: type === 'location' ? location_debut : undefined,
         location_fin: type === 'location' ? location_fin : undefined,
       });
-
       await order.save();
       createdOrders.push(order);
-
       // Update library
       await updateUserLibrary(userId, [
         {
@@ -159,10 +152,6 @@ const createOrder = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
-
-
-
 // 📂 Get all orders (admin only)
 const getAllOrders = async (req, res) => {
   try {

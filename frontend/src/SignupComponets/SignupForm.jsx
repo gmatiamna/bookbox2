@@ -11,7 +11,8 @@ import dbicon from "../assets/datebirth-icon.svg";
 import approved from "../assets/approved.svg";
 import rejected from "../assets/rejected.svg";
 import "../styles/signupbuttonstyle.css";
-import SignupToGenreTransition  from "./SignupTogenreAn";
+import SignupToGenreTransition from "./SignupTogenreAn";
+
 const SignupForm = () => {
   const [formData, setFormData] = useState({
     nom: "",
@@ -27,6 +28,7 @@ const SignupForm = () => {
   const navigate = useNavigate();
   const [signup, { isLoading }] = useSignupMutation();
   const [showTransition, setShowTransition] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     const updatedForm = {
@@ -38,41 +40,43 @@ const SignupForm = () => {
     if (name === "mot_de_passe" || name === "confirmPassword") {
       setPasswordMatch(updatedForm.mot_de_passe === updatedForm.confirmPassword);
     }
-    
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!passwordMatch) {
-      setError("Passwords do not match!");
+      setError("Passwords do not match.");
       return;
     }
 
     try {
       const userData = await signup(formData).unwrap();
       dispatch(setCredentials(userData.user));
-      alert(userData.message);
-      setShowTransition(true); 
+      setError(null); // clear previous errors
+      setShowTransition(true);
       setTimeout(() => {
         navigate("/genreupdate");
-      }, 4000); // Delay (2s) to match animation
+      }, 4000);
     } catch (err) {
       setError(err?.data?.message || "Something went wrong!");
     }
   };
+
   const isValidEmail = (email) => /^\S+@\S+\.\S+$/.test(email);
   const isStrongPassword = (password) => password.length >= 6;
+
   if (showTransition) {
     return <SignupToGenreTransition />;
   }
+
   return (
-    <div className="w-[30%]   mt-[144px] ml-[164px] absolute">
+    <div className="w-[30%] mt-[144px] ml-[164px] absolute">
       <div className="flex justify-between">
         <div>
           <h2 className="font-[Zain] font-extrabold text-[52px] leading-[100%] tracking-[5%] text-black">
             Sign Up
           </h2>
-          <p className="font-[Zain] font-normal text-[14px] leading-[100%] tracking-[0%] text-[#6A7282]">
+          <p className="font-[Zain] text-[14px] text-[#6A7282]">
             Start your journey with BookBox. Sign up and start exploring!
           </p>
         </div>
@@ -88,7 +92,7 @@ const SignupForm = () => {
             name="nom"
             value={formData.nom}
             onChange={handleChange}
-            className="w-full px-4 py-2 placeholder-gray-500 bg-transparent border-none focus:outline-none focus:ring-0"
+            className="w-full px-4 py-2 placeholder-gray-500 bg-transparent border-none focus:outline-none"
             placeholder="Username"
             required
           />
@@ -109,7 +113,7 @@ const SignupForm = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-4 py-2 placeholder-gray-500 bg-transparent border-none focus:outline-none focus:ring-0"
+            className="w-full px-4 py-2 placeholder-gray-500 bg-transparent border-none focus:outline-none"
             placeholder="UserEmail"
             required
           />
@@ -122,7 +126,7 @@ const SignupForm = () => {
           )}
         </div>
 
-        {/* Date of birth */}
+        {/* Date of Birth */}
         <div className="relative mb-4 border-b border-gray-300 flex items-center">
           <img src={dbicon} alt="dob-icon" />
           <input
@@ -130,7 +134,7 @@ const SignupForm = () => {
             name="d_ness"
             value={formData.d_ness}
             onChange={handleChange}
-            className="w-full px-4 py-2 placeholder-gray-500 bg-transparent border-none focus:outline-none focus:ring-0"
+            className="w-full px-4 py-2 bg-transparent border-none focus:outline-none"
             required
           />
           {formData.d_ness.length > 0 && (
@@ -150,7 +154,7 @@ const SignupForm = () => {
             name="mot_de_passe"
             value={formData.mot_de_passe}
             onChange={handleChange}
-            className="w-full px-4 py-2 placeholder-gray-500 bg-transparent border-none focus:outline-none focus:ring-0"
+            className="w-full px-4 py-2 placeholder-gray-500 bg-transparent border-none focus:outline-none"
             placeholder="Password"
             required
           />
@@ -171,7 +175,7 @@ const SignupForm = () => {
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            className="w-full px-4 py-2 placeholder-gray-500 bg-transparent border-none focus:outline-none focus:ring-0"
+            className="w-full px-4 py-2 placeholder-gray-500 bg-transparent border-none focus:outline-none"
             placeholder="Verify Password"
             required
           />
@@ -184,10 +188,11 @@ const SignupForm = () => {
           )}
         </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={isLoading}
-          className="w-[157px] p-2 bg-[#9FB11D] text-white pl-10"
+          className="w-[157px] p-2 bg-[#9FB11D] text-white pl-10 flex items-center justify-between"
         >
           {isLoading ? "Signing up..." : "Sign Up"}
           <div className="arrow-wrapper">
@@ -195,9 +200,16 @@ const SignupForm = () => {
           </div>
         </button>
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {/* Tailwind Error Messages */}
+        {error && (
+          <p className="mt-3 text-sm text-[#D97706] italic font-medium">
+            {error}
+          </p>
+        )}
         {!passwordMatch && (
-          <p style={{ color: "red" }}>Passwords do not match.</p>
+          <p className="mt-2 text-sm text-[#D97706] italic font-medium">
+            Passwords do not match.
+          </p>
         )}
       </form>
     </div>

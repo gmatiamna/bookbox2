@@ -19,6 +19,13 @@ import Fail from "./paymentscompants/Fail";
 import SuccessSubscription from "./paymentscompants/SuccessSubscription";
 import FailSubscription from "./paymentscompants/FailSubscription";
 import Profile from "./pages/Profile";
+import AdminRoute from "./AdminComponts/AdminRoute";
+import AdminDashboard from "./pages/AdminDashboard";
+import AddBookForm from "./AdminComponts/addBookForm";
+import AdminBooksList from "./AdminComponts/Adminbooklist";
+import EditBookForm from "./AdminComponts/Editbookform";
+import AddPlanForm from "./AdminComponts/AddPlanForm"
+import AdminPlanlist from "./AdminComponts/Planlist"
 function App() {
   return (
     <div>
@@ -122,6 +129,33 @@ function App() {
         />
         {/* Redirect root ("/") to "/home" */}
       <Route path="/" element={<LandingPage />} />
+<Route
+  path="/admin/dashboard"
+  element={
+    <AdminRoute>
+      <AdminDashboard />
+    </AdminRoute>
+  }
+/>
+<Route
+  path="/admin/add-book"
+  element={
+    <AdminRoute>
+      <AddBookForm />
+    </AdminRoute>
+  }
+/>
+<Route
+  path="/admin/add-plan"
+  element={
+    <AdminRoute>
+      <AddPlanForm/>
+    </AdminRoute>
+  }
+/>
+<Route path="/admin/books" element={<AdminBooksList />} />
+<Route path="/admin/plans" element={<AdminPlanlist />} />
+<Route path="/admin/edit-book/:id" element={<EditBookForm />} />
 
       </Routes>
     </div>

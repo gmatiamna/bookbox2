@@ -63,25 +63,51 @@ export const bookApi = apiSlice.injectEndpoints({
       query: (bookId) => `/books/secure-pdf/${bookId}`,
       providesTags: ["BookAccess"],
     }),
-    // ✅ Add these two correctly here:
-   addRating: builder.mutation({
-  query: ({ bookId, rating }) => ({
-    url: `/books/${bookId}/rateBook`,
-    method: 'POST',
-    body: { rating },
-  }),
-}),
 
-addComment: builder.mutation({
-  query: ({ bookId, texte }) => ({
-    url: `/books/${bookId}/comment`,
-    method: 'POST',
-    body: { texte },
+    addRating: builder.mutation({
+      query: ({ bookId, rating }) => ({
+        url: `/books/${bookId}/rateBook`,
+        method: "POST",
+        body: { rating },
+      }),
+    }),
+
+    addComment: builder.mutation({
+      query: ({ bookId, texte }) => ({
+        url: `/books/${bookId}/comment`,
+        method: "POST",
+        body: { texte },
+      }),
+    }),
+
+    // <-- ADDING addBook MUTATION HERE
+addBook: builder.mutation({
+  query: (formData) => ({
+    url: "/books/createBook",
+    method: "POST",
+    body: formData,
   }),
+  invalidatesTags: ["Book"],
+}),
+deleteBook: builder.mutation({
+  query: (id) => ({
+    url: `/books/deleteBook/${id}`,
+    method: "DELETE",
+  }),
+  invalidatesTags: ["Book"],
+}),
+updateBook: builder.mutation({
+  query: ({ id, data }) => ({
+    url: `/books/updateBook/${id}`,
+    method: "PUT",
+    body: data,
+  }),
+  invalidatesTags: ["Book"],
 }),
 
   }),
 });
+
 export const {
   useGetBooksQuery,
   useGetNewFavoriteBooksQuery,
@@ -98,6 +124,10 @@ export const {
   useGetLatestCommentQuery,
   useGetBestSellersQuery,
   useGetMostRatedBookQuery,
-  useAddRatingMutation,         // ✅ include this
-  useAddCommentMutation         // ✅ and this
+  useAddRatingMutation,
+  useAddCommentMutation,
+  useAddBookMutation, 
+  useDeleteBookMutation,
+useUpdateBookMutation,
+
 } = bookApi;

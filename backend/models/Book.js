@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const genre = require('../utils/genre');
 
 const bookSchema = new mongoose.Schema({
   titre: {
@@ -65,14 +64,19 @@ const bookSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  
-  // ✅ CACHED discount from applied offer
+
+  remise: {
+    type: Number,
+    min: 0,
+    max: 100,
+    default: 0
+  },
+
   discountedPrice: {
     type: Number,
     default: null
   },
 
-  // ✅ Active offer reference
   offer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Offer',

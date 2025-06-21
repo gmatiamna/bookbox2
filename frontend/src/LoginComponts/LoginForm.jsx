@@ -21,8 +21,18 @@ const LoginForm = () => {
 
     try {
       const user = await login({ email, mot_de_passe }).unwrap();
-      dispatch(setCredentials(user));
-      navigate("/home");
+
+      // Check the role and redirect accordingly
+      if (user?.user?.role === "admin") {
+        dispatch(setCredentials(user));
+        navigate("/admin/dashboard");
+      } else if (user?.user?.role === "user") {
+        dispatch(setCredentials(user));
+        navigate("/home");
+      } else {
+        setError("Unauthorized role");
+      }
+
     } catch (err) {
       console.error(err);
       setError(err?.data?.message || "Invalid email or password");
@@ -63,7 +73,12 @@ const LoginForm = () => {
           />
         </div>
 
-        {error && <p className="text-red-500">{error}</p>}
+        {/* Styled Error Message */}
+        {error && (
+          <p className="text-sm text-[#D97706] italic font-medium">
+            {error}
+          </p>
+        )}
 
         <a href="#" className="text-[#885520] font-[700] ml-16">
           Forget password?
